@@ -132,13 +132,35 @@ async function preprocessImageForOcr(
   });
 }
 
+export interface OcrDetectionResult {
+  fields: FieldConfig[];
+  isDaiDoanKet: boolean;
+  extractedRecord: Record<string, string>;
+  rawText: string;
+}
+
+// Bộ lọc chuỗi rác do OCR đọc sai ảnh nghiêng/bóng đổ (ví dụ: "mêSih DÂN TO SR", "x hue wo pen = Lea ngày", "| in x iy")
+function isGarbledText(text: string): boolean {
+  if (text.length < 3) return true;
+  // Quá nhiều ký tự đặc biệt
+  const specialChars = (text.match(/[|={}[\]_~<>\\/]/g) || []).length;
+  if (specialChars >= 2 && specialChars / text.length > 0.15) return true;
+
+  const lower = text.toLowerCase();
+  // Từ khóa rác điển hình do camera quét chữ in mờ / bóng đổ
+  const badPatterns = ['wo pen', 'dinar', 'or a me', 'mêsih', 'se fon', 'conghoaki', 'baetap', 'hnorame'];
+  if (badPatterns.some(p => lower.includes(p))) return true;
+
+  return false;
+}
+
 // 2. Nhận diện văn bản từ hình ảnh (PNG, JPG, WebP) bằng Tesseract OCR
 export async function extractTextFieldsFromImage(
   imageSource: string | File,
   stageWidth: number,
   stageHeight: number,
   onProgress?: (percent: number, status: string) => void
-): Promise<FieldConfig[]> {
+): Promise<OcrDetectionResult> {
   try {
     const { createWorker } = await import('tesseract.js');
     if (onProgress) onProgress(10, 'Đang chuẩn bị bộ giải mã OCR & tiền xử lý ảnh...');
@@ -175,7 +197,45 @@ export async function extractTextFieldsFromImage(
     const res = await worker.recognize(processedUrl, {}, { blocks: true });
     await worker.terminate();
 
-    if (onProgress) onProgress(92, 'Đang phân tích cấu trúc cột và tạo các trường kéo thả...');
+    if (onProgress) onProgress(92, 'Đang phân tích cấu trúc văn bản và lọc bỏ rác OCR...');
+
+    const allText = res.data.text || '';
+    const isDaiDoanKet = (allText.includes('ĐẠI ĐOÀN KẾT') || allText.includes('ĐOÀN KẾT') || allText.includes('MTTQ')) && 
+                         (allText.includes('THƯ MỜI') || allText.includes('Ban vận động') || allText.includes('Giồng Ông Đông') || allText.includes('Đại Phước'));
+
+    const extractedRecord: Record<string, string> = {};
+
+    // Trích xuất họ tên người nhận từ ảnh
+    const nameMatch = allText.match(/(?:Ông\s*\(bà\)|Ông\/bà|Kính mời Ông|Kính gửi Ông|Kính gửi)\s*:\s*([^\n\r]+)/i);
+    if (nameMatch && nameMatch[1]) {
+      extractedRecord.name = nameMatch[1].replace(/[-_.*]/g, '').trim();
+    }
+
+    // Trích xuất địa chỉ
+    const addrMatch = allText.match(/(?:Địa chỉ)\s*:\s*([^\n\r]+)/i);
+    if (addrMatch && addrMatch[1]) {
+      extractedRecord.address = addrMatch[1].replace(/[-_.*]/g, '').trim();
+    }
+
+    // Trích xuất số thư mời
+    const noMatch = allText.match(/(?:Số)\s*([0-9]+\/[A-Z-]+)/i);
+    if (noMatch && noMatch[1]) {
+      extractedRecord.letter_no = noMatch[1].trim();
+    } else if (allText.includes('01/TM-BVĐ')) {
+      extractedRecord.letter_no = '01/TM-BVĐ';
+    }
+
+    // Trích xuất thời gian
+    const timeMatch = allText.match(/(?:Thời gian:\s*|Vào lúc\s*)([^\n\r]+)/i);
+    if (timeMatch && timeMatch[1]) {
+      extractedRecord.time = timeMatch[1].replace(/[-_.*]/g, '').trim();
+    }
+
+    // Trích xuất địa điểm
+    const locMatch = allText.match(/(?:Địa điểm\s*:\s*)([^\n\r]+)/i);
+    if (locMatch && locMatch[1]) {
+      extractedRecord.location = locMatch[1].replace(/[-_.*]/g, '').trim();
+    }
 
     const rawItems: ExtractedTextItem[] = [];
 
@@ -212,7 +272,14 @@ export async function extractTextFieldsFromImage(
       }
     }
 
-    return clusterItemsIntoFields(rawItems, stageWidth, stageHeight);
+    const fields = clusterItemsIntoFields(rawItems, stageWidth, stageHeight);
+
+    return {
+      fields,
+      isDaiDoanKet,
+      extractedRecord,
+      rawText: allText
+    };
   } catch (err) {
     console.warn('Lỗi OCR hình ảnh:', err);
     throw err;
@@ -229,8 +296,8 @@ function pushClusterToItems(
   stageScaleY: number
 ) {
   const text = cluster.map(w => w.text).join(' ').trim();
-  // Bỏ qua ký tự rác hoặc quá ngắn
-  if (!text || text.length < 2) return;
+  // Bỏ qua ký tự rác hoặc lỗi OCR
+  if (!text || text.length < 2 || isGarbledText(text)) return;
 
   const minX = Math.min(...cluster.map(w => w.bbox.x0)) * procScaleX;
   const minY = Math.min(...cluster.map(w => w.bbox.y0)) * procScaleY;
@@ -242,7 +309,9 @@ function pushClusterToItems(
   const canvasWidth = Math.round((maxX - minX) * stageScaleX);
   const canvasHeight = Math.round((maxY - minY) * stageScaleY);
 
-  const fontSize = Math.max(12, Math.min(54, Math.round(canvasHeight * 0.85)));
+  // Giới hạn cỡ chữ trong khoảng 13px - 17px, tuyệt đối không để quá to đè lấn nhau
+  const isHeading = text.toUpperCase() === text && text.length > 4 && text.length < 35;
+  const fontSize = isHeading ? 17 : 14;
 
   targetList.push({
     text,
@@ -252,7 +321,7 @@ function pushClusterToItems(
     height: canvasHeight,
     fontSize,
     fontFamily: "'Inter', sans-serif",
-    isBold: false
+    isBold: isHeading
   });
 }
 

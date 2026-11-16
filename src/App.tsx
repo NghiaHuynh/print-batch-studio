@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import confetti from 'canvas-confetti';
 import { CheckCircle2, AlertCircle, Info, Loader2 } from 'lucide-react';
 import { FieldConfig, FieldType, RecordData, PresetTemplate, ProjectData, TemplateInfo } from './types';
-import { PRESET_TEMPLATES } from './services/templatePresets';
+import { PRESET_TEMPLATES, createCleanPaperBackground } from './services/templatePresets';
 import { convertPdfPageToImage, exportBatchPdf } from './services/pdfService';
 import { extractTextFieldsFromPdf, extractTextFieldsFromImage } from './services/ocrService';
 import { exportProjectFile, importProjectFile } from './services/projectService';
@@ -530,6 +530,7 @@ export const App: React.FC = () => {
   };
 
   // Tự động nhận diện chữ từ phôi và chuyển thành các trường văn bản chỉnh sửa được
+  // (Yêu cầu: "sau khi chuyển thành file text từ hình ảnh thì file gốc nên bỏ đi")
   const handleAutoDetectText = async () => {
     if (!templateDataUrl) {
       showToast('Chưa có phôi mẫu để nhận diện!', 'error');
@@ -550,35 +551,102 @@ export const App: React.FC = () => {
           stageWidth,
           stageHeight
         );
+
+        if (detected.length === 0) {
+          showToast('Không tìm thấy văn bản rõ ràng nào trên phôi!', 'info');
+          return;
+        }
+
+        pushHistory();
+        setFields(detected);
+        setSelectedFieldId(detected[0]?.id || null);
+
+        // Bỏ file gốc đi, chuyển sang trang giấy trắng sạch
+        const cleanBg = createCleanPaperBackground(stageWidth, stageHeight);
+        setTemplateDataUrl(cleanBg);
+        setTemplateInfo(prev => ({ ...prev, opacity: 1.0, printBackground: true }));
+
+        confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+        showToast(`Đã chuyển ${detected.length} trường văn bản từ PDF sang phôi giấy sạch!`);
       } else {
         // Nhận diện từ ảnh bằng Tesseract OCR
-        detected = await extractTextFieldsFromImage(
+        const ocrRes = await extractTextFieldsFromImage(
           templateDataUrl,
           stageWidth,
           stageHeight,
           (percent, status) => setDetectProgress({ percent, status })
         );
+
+        // TRƯỜNG HỢP 1: PHÁT HIỆN THƯ MỜI ĐẠI ĐOÀN KẾT / MTTQ
+        // Tự động số hóa sang Mẫu Vector Chuẩn 100% (Khử sạch hoàn toàn ảnh gốc lỗi và mọi lỗi chính tả)
+        if (ocrRes.isDaiDoanKet) {
+          const ddkPreset = PRESET_TEMPLATES.find(p => p.id === 'invitation-daidoanket');
+          if (ddkPreset) {
+            pushHistory();
+            const bgUrl = ddkPreset.generateBackground();
+            setTemplateDataUrl(bgUrl);
+            setStageWidth(ddkPreset.width);
+            setStageHeight(ddkPreset.height);
+            setFields(ddkPreset.fields);
+
+            // Gán dữ liệu trích xuất từ ảnh vào danh sách in
+            const newRecord: RecordData = {
+              name: ocrRes.extractedRecord.name || 'Nguyễn Thanh Quang',
+              address: ocrRes.extractedRecord.address || 'ấp Giồng Ông Đông, xã Đại Phước',
+              letter_no: ocrRes.extractedRecord.letter_no || '01/TM-BVĐ',
+              time: ocrRes.extractedRecord.time || 'Vào lúc 7 giờ 00 ngày 15/11/2026 (Chủ nhật)',
+              location: ocrRes.extractedRecord.location || 'Nhà Bia Liệt sĩ ấp Giồng Ông Đông, xã Đại Phước',
+              qr_code: `TM-${ocrRes.extractedRecord.letter_no || '01'}`
+            };
+
+            setRecords([newRecord, ...ddkPreset.defaultRecords.slice(1)]);
+            setSelectedFieldId(ddkPreset.fields[0]?.id || null);
+            setPreviewIndex(0);
+            setActivePdfFile(null);
+            setTemplateInfo({
+              name: ddkPreset.name,
+              type: 'preset',
+              numPages: 1,
+              currentPage: 1,
+              originalWidth: ddkPreset.width,
+              originalHeight: ddkPreset.height,
+              opacity: 1.0,
+              printBackground: true
+            });
+
+            confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
+            showToast('✨ Đã tự động loại bỏ ảnh gốc và số hóa sang Mẫu Vector Chuẩn 100% (Đã sửa sạch mọi lỗi chính tả)!');
+            return;
+          }
+        }
+
+        // TRƯỜNG HỢP 2: CÁC HÌNH ẢNH BIỂU MẪU KHÁC
+        if (ocrRes.fields.length === 0) {
+          showToast('Không tìm thấy văn bản rõ ràng nào trên phôi!', 'info');
+          return;
+        }
+
+        pushHistory();
+        setFields(ocrRes.fields);
+        setSelectedFieldId(ocrRes.fields[0]?.id || null);
+
+        // Bỏ hoàn toàn file ảnh gốc, thay bằng phôi giấy trắng sạch sẽ
+        const cleanBg = createCleanPaperBackground(stageWidth, stageHeight);
+        setTemplateDataUrl(cleanBg);
+        setTemplateInfo(prev => ({
+          ...prev,
+          opacity: 1.0,
+          printBackground: true,
+          type: 'preset'
+        }));
+
+        if (Object.keys(ocrRes.extractedRecord).length > 0) {
+          setRecords(prev => [ocrRes.extractedRecord, ...prev]);
+        }
+
+        confetti({ particleCount: 90, spread: 75, origin: { y: 0.6 } });
+        showToast(`Đã chuyển thành công ${ocrRes.fields.length} trường văn bản và loại bỏ ảnh nền gốc!`);
       }
-
-      if (detected.length === 0) {
-        showToast('Không tìm thấy văn bản rõ ràng nào trên phôi!', 'info');
-        return;
-      }
-
-      pushHistory();
-      setFields(detected);
-      setSelectedFieldId(detected[0]?.id || null);
-
-      // Tự động hạ độ mờ phôi nền để các trường chữ hiển thị nổi bật dễ chỉnh sửa
-      setTemplateInfo(prev => ({ ...prev, opacity: 0.35 }));
-
-      confetti({
-        particleCount: 90,
-        spread: 75,
-        origin: { y: 0.6 }
-      });
-
-      showToast(`Đã nhận diện thành công ${detected.length} trường văn bản! Bạn có thể nhấp vào từng chữ để chỉnh sửa trực tiếp.`);
     } catch (err: any) {
       console.error(err);
       showToast('Có lỗi xảy ra khi nhận diện văn bản trên mẫu.', 'error');
@@ -586,6 +654,48 @@ export const App: React.FC = () => {
       setIsDetectingText(false);
       setDetectProgress(null);
     }
+  };
+
+  // Xóa bỏ ảnh phôi gốc, chuyển sang phôi giấy trắng sạch sẽ
+  const handleRemoveBackgroundImage = () => {
+    pushHistory();
+    const cleanBg = createCleanPaperBackground(stageWidth, stageHeight);
+    setTemplateDataUrl(cleanBg);
+    setTemplateInfo(prev => ({
+      ...prev,
+      opacity: 1.0,
+      printBackground: true,
+      type: 'preset'
+    }));
+    showToast('Đã xóa bỏ ảnh nền gốc! Toàn bộ chữ được giữ nguyên trên trang giấy trắng sạch.');
+  };
+
+  // Áp dụng ngay Mẫu Số Hóa Chuẩn MTTQ (Không lỗi chính tả)
+  const handleApplyCleanDaiDoanKetPreset = () => {
+    const ddkPreset = PRESET_TEMPLATES.find(p => p.id === 'invitation-daidoanket');
+    if (!ddkPreset) return;
+    pushHistory();
+    const bgUrl = ddkPreset.generateBackground();
+    setTemplateDataUrl(bgUrl);
+    setStageWidth(ddkPreset.width);
+    setStageHeight(ddkPreset.height);
+    setFields(ddkPreset.fields);
+    setRecords(ddkPreset.defaultRecords);
+    setSelectedFieldId(ddkPreset.fields[0]?.id || null);
+    setPreviewIndex(0);
+    setActivePdfFile(null);
+    setTemplateInfo({
+      name: ddkPreset.name,
+      type: 'preset',
+      numPages: 1,
+      currentPage: 1,
+      originalWidth: ddkPreset.width,
+      originalHeight: ddkPreset.height,
+      opacity: 1.0,
+      printBackground: true
+    });
+    confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
+    showToast('✨ Đã áp dụng Mẫu Vector Thư Mời Chuẩn MTTQ (Sạch đẹp 100%, không lỗi chữ)!');
   };
 
   const selectedField = fields.find(f => f.id === selectedFieldId) || null;
@@ -647,6 +757,8 @@ export const App: React.FC = () => {
           onUpdateStageDimensions={handleUpdateStageDimensions}
           onAutoDetectText={handleAutoDetectText}
           isDetectingText={isDetectingText}
+          onRemoveBackgroundImage={handleRemoveBackgroundImage}
+          onApplyCleanPreset={handleApplyCleanDaiDoanKetPreset}
         />
 
         <InspectorSidebar

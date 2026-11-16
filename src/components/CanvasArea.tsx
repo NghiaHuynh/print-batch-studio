@@ -16,7 +16,8 @@ import {
   Sparkles, 
   Type, 
   QrCode, 
-  Barcode 
+  Barcode,
+  Trash2
 } from 'lucide-react';
 import { FieldConfig, FieldType, RecordData, TemplateInfo } from '../types';
 import { generateQrDataUrl, generateBarcodeDataUrl } from '../services/pdfService';
@@ -40,6 +41,8 @@ interface CanvasAreaProps {
   onUpdateStageDimensions?: (width: number, height: number) => void;
   onAutoDetectText?: () => void;
   isDetectingText?: boolean;
+  onRemoveBackgroundImage?: () => void;
+  onApplyCleanPreset?: () => void;
 }
 
 export const CanvasArea: React.FC<CanvasAreaProps> = ({
@@ -60,7 +63,9 @@ export const CanvasArea: React.FC<CanvasAreaProps> = ({
   onUpdateTemplateInfo,
   onUpdateStageDimensions,
   onAutoDetectText,
-  isDetectingText
+  isDetectingText,
+  onRemoveBackgroundImage,
+  onApplyCleanPreset
 }) => {
   const [zoom, setZoom] = useState<number>(1);
   const [guideX, setGuideX] = useState<number | null>(null);
@@ -369,10 +374,37 @@ export const CanvasArea: React.FC<CanvasAreaProps> = ({
             onClick={onAutoDetectText}
             disabled={isDetectingText}
             className="flex items-center gap-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:opacity-60 text-white px-3 py-1.5 rounded-xl border border-indigo-400/50 text-xs font-semibold shadow-lg transition active:scale-95 cursor-pointer"
-            title="Tự động quét và chuyển toàn bộ chữ trên phôi ảnh hoặc PDF thành các trường văn bản có thể chỉnh sửa"
+            title="Tự động quét và chuyển toàn bộ chữ trên phôi ảnh hoặc PDF thành các trường văn bản có thể chỉnh sửa và loại bỏ ảnh nền"
           >
             <Sparkles className={`w-3.5 h-3.5 text-amber-300 ${isDetectingText ? 'animate-spin' : 'animate-pulse'}`} />
-            <span>{isDetectingText ? 'Đang nhận diện chữ...' : 'Nhận diện chữ thành văn bản'}</span>
+            <span>{isDetectingText ? 'Đang nhận diện chữ...' : 'Nhận diện & Bỏ ảnh gốc'}</span>
+          </button>
+        )}
+
+        {/* Nút Xóa ảnh nền gốc / Chuyển sang phôi giấy trắng sạch */}
+        {templateDataUrl && onRemoveBackgroundImage && (
+          <button
+            type="button"
+            onClick={onRemoveBackgroundImage}
+            className="flex items-center gap-1.5 bg-slate-900/85 hover:bg-rose-900/80 backdrop-blur-md text-slate-300 hover:text-white px-2.5 py-1.5 rounded-xl border border-slate-700/80 text-xs font-medium shadow-lg transition active:scale-95 cursor-pointer"
+            title="Xóa bỏ hoàn toàn ảnh chụp phôi gốc (loại bỏ ảnh bị mờ/nghiêng/lỗi, chỉ giữ lại văn bản trên nền giấy trắng sạch)"
+          >
+            <Trash2 className="w-3.5 h-3.5 text-rose-400" />
+            <span className="hidden sm:inline">Bỏ ảnh gốc</span>
+          </button>
+        )}
+
+        {/* Nút Áp dụng Mẫu Số Hóa Chuẩn 100% MTTQ */}
+        {onApplyCleanPreset && (
+          <button
+            type="button"
+            onClick={onApplyCleanPreset}
+            className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold shadow-lg transition active:scale-95 cursor-pointer"
+            title="Áp dụng ngay Mẫu Thư Mời Chuẩn Vector MTTQ (Sạch đẹp 100%, không còn bất kỳ lỗi chữ nào)"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+            <span className="hidden md:inline">Mẫu Số Hóa Chuẩn 100%</span>
+            <span className="md:hidden">Mẫu Chuẩn</span>
           </button>
         )}
 

@@ -1,5 +1,24 @@
 import { PresetTemplate } from '../types';
 
+// Tạo phôi giấy trắng sạch sẽ thay thế ảnh gốc sau khi chuyển thành text
+export function createCleanPaperBackground(width: number, height: number): string {
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.max(800, width * 2);
+  canvas.height = Math.max(600, height * 2);
+  const ctx = canvas.getContext('2d')!;
+
+  // Nền giấy trắng ngà sạch đẹp
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Viền bo tinh tế
+  ctx.strokeStyle = '#e2e8f0';
+  ctx.lineWidth = 4;
+  ctx.strokeRect(24, 24, canvas.width - 48, canvas.height - 48);
+
+  return canvas.toDataURL('image/png');
+}
+
 export const PRESET_TEMPLATES: PresetTemplate[] = [
   {
     id: 'invitation-vip',
