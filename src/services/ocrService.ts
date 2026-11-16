@@ -101,14 +101,14 @@ async function preprocessImageForOcr(
         for (let i = 0; i < d.length; i += 4) {
           const gray = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
           // Kéo dãn độ tương phản
-          const contrast = (gray - 128) * 1.35 + 128;
+          const contrast = (gray - 128) * 1.25 + 128;
           const clamped = Math.max(0, Math.min(255, contrast));
           d[i] = clamped;
           d[i + 1] = clamped;
           d[i + 2] = clamped;
         }
         ctx.putImageData(imgData, 0, 0);
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+        const dataUrl = canvas.toDataURL('image/png');
         resolve({
           dataUrl,
           scaleX: origW / targetW,
@@ -526,22 +526,15 @@ export async function convertPdfPageToImage(file: File, pageNum: number = 1): Pr
 
 // Mẫu nhận diện các đơn vị / cơ quan / chức vụ phổ biến trong bảng danh sách tiếng Việt
 const UNIT_PATTERNS = [
-  /TRƯỜNG\s+THCS/i,
-  /TRƯỜNG\s+TIỂU\s+HỌC/i,
-  /TRƯỜNG\s+MẦM\s+NON/i,
-  /TRƯỜNG\s+NGHỀ/i,
-  /TRƯỜNG\s+[A-ZĐ]/i,
-  /BAN\s+XÂY\s+DỰNG/i,
-  /BAN\s+CHỈ\s+HUY/i,
-  /BAN\s+VẬN\s+ĐỘNG/i,
-  /BAN\s+[A-ZĐ]/i,
+  /TRƯỜNG/i,
+  /BAN\s+/i,
+  /BẠN\s+/i,
   /HÀNH\s+CHÍNH/i,
-  /PHÒNG\s+KT/i,
-  /PHÒNG\s+[A-ZĐ]/i,
+  /PHÒNG/i,
   /XÃ\s+ĐỘI/i,
   /CHI\s+BỘ/i,
+  /CHỊ\s+BỘ/i,
   /ĐỊA\s+CHÍNH/i,
-  /GV\s+THCS/i,
   /GV\s+/i,
   /CÔNG\s+TY/i,
   /ỦY\s+BAN/i,
@@ -549,32 +542,72 @@ const UNIT_PATTERNS = [
   /HỘI\s+NÔNG\s+DÂN/i,
   /ĐOÀN\s+THANH\s+NIÊN/i,
   /CÔNG\s+AN/i,
-  /QUÂN\s+SỰ/i
+  /QUÂN\s+SỰ/i,
+  /ĐẢNG\s+XÃ/i,
+  /ĐĂNG\s+XÃ/i,
+  /TTPHÁT/i,
+  /QUỸ\s+ĐẤT/i,
+  /QUỸ\s+ĐÁT/i
 ];
 
-function cleanOcrToken(s: string): string {
-  if (!s) return '';
-  return s.replace(/^[|/\\_.\-\s'",]+|[|/\\_.\-\s'",]+$/g, '').trim();
+function isUnitText(text: string): boolean {
+  return UNIT_PATTERNS.some(pat => pat.test(text));
 }
 
-function splitNameAndUnit(text: string): { name: string; unit: string } {
-  // 1. Tách qua ký tự phân cách | hoặc /
-  const delimMatch = text.match(/^(.*?)\s*([|/])\s*(.*)$/);
-  if (delimMatch && delimMatch[1].trim().length >= 3 && delimMatch[3].trim().length >= 2) {
-    return { name: cleanOcrToken(delimMatch[1]), unit: cleanOcrToken(delimMatch[3]) };
-  }
+function isAddressText(text: string): boolean {
+  const lower = text.toLowerCase();
+  return lower.includes('giồng') || lower.includes('giòng') || lower.includes('giông') || 
+         lower.includes('ông đông') || lower.includes('ấp ') || lower.includes('thôn ') || 
+         lower.includes('tổ ') || lower.includes('khu phố') || lower.includes('số nhà');
+}
 
-  // 2. Tách qua từ khóa đơn vị / cơ quan
+// Làm sạch tên khách mời: xóa bỏ dấu ngoặc vuông [, ], dấu gạch |, I, số STT dính trước tên
+export function cleanGuestName(raw: string): string {
+  if (!raw) return '';
+  let s = raw;
+  // 1. Xóa các ký tự nhiễu biên khung / bảng scan như [, ], |, /, \, ~, `, ', ", {, }, (, ), :, ;, !, ?, *
+  s = s.replace(/^[|/\\_.\-\s'",~`:;!?[\]{}()<>=+*#@$%^&]+/g, '').trim();
+  s = s.replace(/[|/\\_.\-\s'",~`:;!?[\]{}()<>=+*#@$%^&]+$/g, '').trim();
+  // 2. Xóa số thứ tự đầu chuỗi (vd: "30 ", "31. ", "32 - ", "26 |")
+  s = s.replace(/^\d{1,3}[\s._|/\\-]+/g, '').trim();
+  // 3. Xóa lại ký tự biên nếu xuất hiện sau STT
+  s = s.replace(/^[|/\\_.\-\s'",~`:;!?[\]{}()<>=+*#@$%^&]+/g, '').trim();
+  // 4. Xóa các ký tự đơn nhiễu do vạch kẻ dọc (I, l, 1) trước chữ cái viết hoa tiếng Việt
+  s = s.replace(/^[I|l1]\s+(?=[A-ZÀ-ỸĐ])/g, '').trim();
+  s = s.replace(/[|/\\_.\-\s'",~`:;!?[\]{}()<>=+*#@$%^&]+$/g, '').trim();
+  // 5. Nếu toàn bộ chuỗi chỉ là số thì không thể là tên khách mời
+  if (/^\d+$/.test(s)) return '';
+  return s;
+}
+
+function cleanUnitText(unit: string): string {
+  if (!unit) return '';
+  let s = unit.replace(/^[|/\\_.\-\s'",~`:;!?[\]{}()<>=+*#@$%^&]+|[|/\\_.\-\s'",~`:;!?[\]{}()<>=+*#@$%^&]+$/g, '').trim();
+  // Bỏ phần địa chỉ đuôi nếu vô tình bị dính vào qua | hoặc /
+  s = s.replace(/[|/\\].*?(?:GIỒNG|GIÒNG|GIÔNG|ÔNG ĐÔNG).*$/i, '').trim();
+  return s;
+}
+
+function cleanAddressText(address: string): string {
+  if (!address) return '';
+  let s = address.replace(/^[|/\\_.\-\s'",~`:;!?[\]{}()<>=+*#@$%^&]+|[|/\\_.\-\s'",~`:;!?[\]{}()<>=+*#@$%^&]+$/g, '').trim();
+  return s;
+}
+
+function splitDelimitedCell(text: string): string[] {
+  // Tách ô nếu có dấu phân cách / hoặc |
+  const m = text.match(/^(.*?)\s*([|/])\s*(.*)$/);
+  if (m && m[1].trim().length >= 3 && m[3].trim().length >= 2) {
+    return [m[1].trim(), m[3].trim()];
+  }
+  // Tách nếu chứa từ khóa đơn vị ngay sau tên
   for (const pat of UNIT_PATTERNS) {
-    const m = text.match(pat);
-    if (m && m.index && m.index >= 4) {
-      const namePart = text.slice(0, m.index);
-      const unitPart = text.slice(m.index);
-      return { name: cleanOcrToken(namePart), unit: cleanOcrToken(unitPart) };
+    const um = text.match(pat);
+    if (um && um.index && um.index >= 4) {
+      return [text.slice(0, um.index).trim(), text.slice(um.index).trim()];
     }
   }
-
-  return { name: cleanOcrToken(text), unit: '' };
+  return [text];
 }
 
 // 3. Nhận diện cấu trúc bảng dữ liệu từ hình ảnh hoặc PDF (chuyển sang danh sách bản ghi)
@@ -641,18 +674,31 @@ export async function parseTableFromImage(
       throw new Error('Không phát hiện được văn bản nào trong bảng ảnh!');
     }
 
-    // 1. Gom các từ thành từng hàng theo tọa độ Y (ngưỡng 15px)
+    // 1. Gom các từ thành từng hàng theo tọa độ Y trung bình động (ngưỡng 20px)
     words.sort((a, b) => a.top - b.top);
     const rows: Array<{ centerY: number; words: typeof words }> = [];
     words.forEach(w => {
       const centerY = w.top + w.height / 2;
-      let r = rows.find(row => Math.abs(row.centerY - centerY) <= 15);
-      if (!r) {
-        r = { centerY, words: [] };
-        rows.push(r);
+      let bestRow: { centerY: number; words: typeof words } | null = null;
+      let minDiff = Infinity;
+
+      for (const r of rows) {
+        const diff = Math.abs(r.centerY - centerY);
+        if (diff <= 20 && diff < minDiff) {
+          minDiff = diff;
+          bestRow = r;
+        }
       }
-      r.words.push(w);
+
+      if (bestRow) {
+        bestRow.words.push(w);
+        const sumY = bestRow.words.reduce((sum, item) => sum + (item.top + item.height / 2), 0);
+        bestRow.centerY = sumY / bestRow.words.length;
+      } else {
+        rows.push({ centerY, words: [w] });
+      }
     });
+
     rows.sort((a, b) => a.centerY - b.centerY);
 
     // 2. Gom các từ trong mỗi hàng thành các ô (cells) dựa vào khoảng trống ngang (gap > 26px)
@@ -680,7 +726,6 @@ export async function parseTableFromImage(
         cells.push(currentCellWords.map(cw => cw.text).join(' '));
       }
 
-      // Chỉ lấy những dòng có từ 2 cột trở lên (cấu trúc bảng)
       if (cells.length >= 2) {
         rawTableRows.push(cells);
       }
@@ -704,53 +749,61 @@ export async function parseTableFromImage(
     let headers: string[] = ['STT', 'Họ và Tên', 'Đơn vị / Chức vụ', 'Địa chỉ'];
 
     if (hasHeaderKeywords) {
-      headers = rawTableRows[0].map(c => cleanOcrToken(c) || 'Cột');
+      headers = rawTableRows[0].map(c => cleanGuestName(c) || 'Cột');
       startIndex = 1;
     }
 
-    // 4. Trích xuất các dòng dữ liệu thành danh sách RecordData
+    // 4. Trích xuất và phân loại ngữ nghĩa từng ô dữ liệu
     const records: RecordData[] = [];
 
     for (let r = startIndex; r < rawTableRows.length; r++) {
-      const cells = rawTableRows[r];
+      const rowCells = rawTableRows[r];
+
+      // Tách thêm nếu ô chứa dấu gạch nối giữa Tên và Đơn vị
+      const expandedCells: string[] = [];
+      rowCells.forEach(cell => {
+        const parts = splitDelimitedCell(cell);
+        expandedCells.push(...parts);
+      });
+
       let stt = '';
       let name = '';
       let unit = '';
       let address = '';
 
-      let firstCell = cells[0];
-      const sttMatch = firstCell.match(/^(\d{1,3})[\s._|/]+(.*)$/);
-      if (sttMatch) {
-        stt = sttMatch[1];
-        firstCell = sttMatch[2];
-      } else {
-        stt = String(records.length + 1);
-      }
+      expandedCells.forEach(rawCell => {
+        const cell = rawCell.trim();
+        if (!cell) return;
 
-      if (cells.length === 3) {
-        name = cleanOcrToken(firstCell);
-        unit = cleanOcrToken(cells[1]);
-        address = cleanOcrToken(cells[2]);
-      } else if (cells.length === 2) {
-        const split = splitNameAndUnit(firstCell);
-        name = split.name;
-        unit = split.unit;
-        address = cleanOcrToken(cells[1]);
-      } else if (cells.length >= 4) {
-        if (/^\d+$/.test(cleanOcrToken(cells[0]))) {
-          stt = cleanOcrToken(cells[0]);
-          name = cleanOcrToken(cells[1]);
-          unit = cleanOcrToken(cells[2]);
-          address = cleanOcrToken(cells[3]);
-        } else {
-          name = cleanOcrToken(cells[0]);
-          unit = cleanOcrToken(cells[1]);
-          address = cleanOcrToken(cells[2]);
+        // A. Ô chỉ chứa số -> Đây là STT, tuyệt đối không thể là tên khách mời
+        if (/^\d{1,3}$/.test(cell)) {
+          if (!stt) stt = cell;
+          return;
         }
-      }
 
-      // Bỏ qua dòng rác OCR nếu tên quá ngắn hoặc rỗng
-      if (!name || name.length < 2) continue;
+        // B. Ô chứa từ khóa đơn vị / cơ quan / chức vụ -> Thuộc cột Đơn vị
+        if (isUnitText(cell)) {
+          if (!unit) unit = cleanUnitText(cell);
+          return;
+        }
+
+        // C. Ô chứa từ khóa địa chỉ -> Thuộc cột Địa chỉ
+        if (isAddressText(cell)) {
+          if (!address) address = cleanAddressText(cell);
+          return;
+        }
+
+        // D. Ứng viên Họ và Tên khách mời
+        const cleaned = cleanGuestName(cell);
+        if (cleaned && !name && !/^\d+$/.test(cleaned)) {
+          name = cleaned;
+        }
+      });
+
+      if (!stt) stt = String(records.length + 1);
+
+      // Bỏ qua dòng rác OCR nếu cả tên và đơn vị đều trống
+      if (!name && !unit) continue;
 
       const record: RecordData = {
         'STT': stt,
@@ -763,6 +816,32 @@ export async function parseTableFromImage(
       };
 
       records.push(record);
+    }
+
+    // 5. Tự động bù địa chỉ chung nếu một số dòng bị thiếu địa chỉ
+    const addressCounts: Record<string, number> = {};
+    records.forEach(rec => {
+      if (rec['Địa chỉ']) {
+        addressCounts[rec['Địa chỉ']] = (addressCounts[rec['Địa chỉ']] || 0) + 1;
+      }
+    });
+
+    let commonAddress = '';
+    let maxCount = 0;
+    for (const [addr, count] of Object.entries(addressCounts)) {
+      if (count > maxCount) {
+        maxCount = count;
+        commonAddress = addr;
+      }
+    }
+
+    if (commonAddress) {
+      records.forEach(rec => {
+        if (!rec['Địa chỉ']) {
+          rec['Địa chỉ'] = commonAddress;
+          rec['address'] = commonAddress;
+        }
+      });
     }
 
     if (onProgress) onProgress(100, `Hoàn tất! Đã trích xuất ${records.length} dòng dữ liệu.`);
