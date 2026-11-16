@@ -63,6 +63,75 @@ export async function extractTextFieldsFromPdf(
   return clusterItemsIntoFields(rawItems, stageWidth, stageHeight);
 }
 
+// Tiền xử lý ảnh trên canvas trước khi OCR (thu nhỏ nếu ảnh quá lớn & tăng tương phản)
+async function preprocessImageForOcr(
+  imageSource: string | File,
+  maxDimension = 1500
+): Promise<{ dataUrl: string; scaleX: number; scaleY: number; origW: number; origH: number }> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const tempUrl = typeof imageSource === 'string' ? imageSource : URL.createObjectURL(imageSource);
+
+    img.onload = () => {
+      const origW = img.naturalWidth || img.width;
+      const origH = img.naturalHeight || img.height;
+
+      // Thu nhỏ nếu ảnh chụp điện thoại quá lớn (4000x3000px) để tránh tràn RAM WebAssembly
+      const maxSide = Math.max(origW, origH);
+      const scale = maxSide > maxDimension ? maxDimension / maxSide : 1.0;
+      const targetW = Math.round(origW * scale);
+      const targetH = Math.round(origH * scale);
+
+      const canvas = document.createElement('canvas');
+      canvas.width = targetW;
+      canvas.height = targetH;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        resolve({ dataUrl: tempUrl, scaleX: 1, scaleY: 1, origW, origH });
+        return;
+      }
+
+      // Vẽ ảnh lên canvas
+      ctx.drawImage(img, 0, 0, targetW, targetH);
+
+      // Tăng cường tương phản và chuyển xám để chữ in rõ nét hơn
+      try {
+        const imgData = ctx.getImageData(0, 0, targetW, targetH);
+        const d = imgData.data;
+        for (let i = 0; i < d.length; i += 4) {
+          const gray = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+          // Kéo dãn độ tương phản
+          const contrast = (gray - 128) * 1.35 + 128;
+          const clamped = Math.max(0, Math.min(255, contrast));
+          d[i] = clamped;
+          d[i + 1] = clamped;
+          d[i + 2] = clamped;
+        }
+        ctx.putImageData(imgData, 0, 0);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+        resolve({
+          dataUrl,
+          scaleX: origW / targetW,
+          scaleY: origH / targetH,
+          origW,
+          origH
+        });
+      } catch {
+        resolve({ dataUrl: tempUrl, scaleX: 1, scaleY: 1, origW, origH });
+      } finally {
+        if (typeof imageSource !== 'string') URL.revokeObjectURL(tempUrl);
+      }
+    };
+
+    img.onerror = () => {
+      if (typeof imageSource !== 'string') URL.revokeObjectURL(tempUrl);
+      reject(new Error('Không thể đọc file ảnh!'));
+    };
+
+    img.src = tempUrl;
+  });
+}
+
 // 2. Nhận diện văn bản từ hình ảnh (PNG, JPG, WebP) bằng Tesseract OCR
 export async function extractTextFieldsFromImage(
   imageSource: string | File,
@@ -72,66 +141,72 @@ export async function extractTextFieldsFromImage(
 ): Promise<FieldConfig[]> {
   try {
     const { createWorker } = await import('tesseract.js');
-    if (onProgress) onProgress(10, 'Đang chuẩn bị bộ giải mã OCR...');
+    if (onProgress) onProgress(10, 'Đang chuẩn bị bộ giải mã OCR & tiền xử lý ảnh...');
 
-    // Lấy kích thước ảnh gốc để quy đổi tọa độ chính xác về Stage
-    const img = new Image();
-    const imgUrl = typeof imageSource === 'string' ? imageSource : URL.createObjectURL(imageSource);
-    await new Promise((resolve, reject) => {
-      img.onload = resolve;
-      img.onerror = reject;
-      img.src = imgUrl;
-    });
+    // Tiền xử lý ảnh (thu nhỏ & tăng tương phản)
+    const { dataUrl: processedUrl, scaleX, scaleY, origW, origH } = await preprocessImageForOcr(imageSource);
 
-    const imgWidth = img.naturalWidth || stageWidth;
-    const imgHeight = img.naturalHeight || stageHeight;
-    const scaleX = stageWidth / imgWidth;
-    const scaleY = stageHeight / imgHeight;
+    // Tỷ lệ quy đổi từ ảnh gốc sang Canvas hiện tại
+    const stageScaleX = stageWidth / origW;
+    const stageScaleY = stageHeight / origH;
 
-    const worker = await createWorker('vie+eng', 1, {
-      logger: (m) => {
-        if (m.status === 'recognizing text' && onProgress) {
-          const p = Math.round(15 + m.progress * 75);
-          onProgress(p, `Đang nhận diện chữ: ${Math.round(m.progress * 100)}%`);
+    if (onProgress) onProgress(20, 'Đang tải bộ từ điển tiếng Việt (vie)...');
+
+    // Khởi tạo worker với cơ chế dự phòng linh hoạt
+    let worker;
+    try {
+      worker = await createWorker('vie+eng', 1, {
+        logger: (m) => {
+          if (m.status === 'recognizing text' && onProgress) {
+            const p = Math.round(25 + m.progress * 65);
+            onProgress(p, `Đang nhận diện chữ tiếng Việt: ${Math.round(m.progress * 100)}%`);
+          }
         }
-      }
-    });
-
-    const res = await worker.recognize(imgUrl);
-    await worker.terminate();
-
-    if (typeof imageSource !== 'string') {
-      URL.revokeObjectURL(imgUrl);
+      });
+    } catch (workerErr) {
+      console.warn('Không tải được gói vie+eng từ CDN, chuyển sang bộ dự phòng eng...', workerErr);
+      if (onProgress) onProgress(25, 'Đang dùng bộ nhận diện dự phòng...');
+      worker = await createWorker('eng', 1);
     }
 
-    if (onProgress) onProgress(95, 'Đang tạo các trường văn bản kéo thả...');
+    if (onProgress) onProgress(40, 'Đang quét và nhận diện cấu trúc dòng chữ...');
+
+    // QUAN TRỌNG: Phải truyền { blocks: true } ở tham số thứ 3 để Tesseract v5 trả về chi tiết blocks/lines/words
+    const res = await worker.recognize(processedUrl, {}, { blocks: true });
+    await worker.terminate();
+
+    if (onProgress) onProgress(92, 'Đang phân tích cấu trúc cột và tạo các trường kéo thả...');
 
     const rawItems: ExtractedTextItem[] = [];
 
-    // Duyệt qua blocks -> paragraphs -> lines
+    // Duyệt qua blocks -> paragraphs -> lines -> words
+    // Hỗ trợ chia cột thông minh cho tài liệu 2 trang / gấp đôi (như thiệp mời, bằng khen)
     if (res.data.blocks) {
       for (const block of res.data.blocks) {
         for (const paragraph of block.paragraphs) {
           for (const line of paragraph.lines) {
-            const text = line.text.trim();
-            if (!text || text.length < 2) continue;
+            if (!line.words || line.words.length === 0) continue;
 
-            const bbox = line.bbox;
-            const x = Math.round(bbox.x0 * scaleX);
-            const y = Math.round(bbox.y0 * scaleY);
-            const height = Math.round((bbox.y1 - bbox.y0) * scaleY);
-            const fontSize = Math.max(12, Math.min(64, Math.round(height * 0.85)));
+            let currentCluster = [line.words[0]];
 
-            rawItems.push({
-              text,
-              x,
-              y,
-              width: Math.round((bbox.x1 - bbox.x0) * scaleX),
-              height,
-              fontSize,
-              fontFamily: "'Inter', sans-serif",
-              isBold: false
-            });
+            for (let i = 1; i < line.words.length; i++) {
+              const prevWord = line.words[i - 1];
+              const currWord = line.words[i];
+              // Khoảng cách theo tọa độ ảnh gốc
+              const gap = (currWord.bbox.x0 - prevWord.bbox.x1) * scaleX;
+
+              // Nếu khoảng trống giữa 2 từ > 45px -> Đây là 2 cột riêng biệt (trang trái & trang phải của thiệp gấp)
+              if (gap > 45) {
+                pushClusterToItems(currentCluster, rawItems, scaleX, scaleY, stageScaleX, stageScaleY);
+                currentCluster = [currWord];
+              } else {
+                currentCluster.push(currWord);
+              }
+            }
+
+            if (currentCluster.length > 0) {
+              pushClusterToItems(currentCluster, rawItems, scaleX, scaleY, stageScaleX, stageScaleY);
+            }
           }
         }
       }
@@ -144,6 +219,43 @@ export async function extractTextFieldsFromImage(
   }
 }
 
+// Đóng gói cụm từ thành ExtractedTextItem với tọa độ quy đổi chính xác
+function pushClusterToItems(
+  cluster: any[],
+  targetList: ExtractedTextItem[],
+  procScaleX: number,
+  procScaleY: number,
+  stageScaleX: number,
+  stageScaleY: number
+) {
+  const text = cluster.map(w => w.text).join(' ').trim();
+  // Bỏ qua ký tự rác hoặc quá ngắn
+  if (!text || text.length < 2) return;
+
+  const minX = Math.min(...cluster.map(w => w.bbox.x0)) * procScaleX;
+  const minY = Math.min(...cluster.map(w => w.bbox.y0)) * procScaleY;
+  const maxX = Math.max(...cluster.map(w => w.bbox.x1)) * procScaleX;
+  const maxY = Math.max(...cluster.map(w => w.bbox.y1)) * procScaleY;
+
+  const canvasX = Math.round(minX * stageScaleX);
+  const canvasY = Math.round(minY * stageScaleY);
+  const canvasWidth = Math.round((maxX - minX) * stageScaleX);
+  const canvasHeight = Math.round((maxY - minY) * stageScaleY);
+
+  const fontSize = Math.max(12, Math.min(54, Math.round(canvasHeight * 0.85)));
+
+  targetList.push({
+    text,
+    x: canvasX,
+    y: canvasY,
+    width: canvasWidth,
+    height: canvasHeight,
+    fontSize,
+    fontFamily: "'Inter', sans-serif",
+    isBold: false
+  });
+}
+
 // Gom các mảnh từ rời rạc trên cùng một dòng thành các dòng văn bản liền mạch
 function clusterItemsIntoFields(
   rawItems: ExtractedTextItem[],
@@ -154,7 +266,7 @@ function clusterItemsIntoFields(
 
   // Sắp xếp theo chiều dọc Y trước, chiều ngang X sau
   rawItems.sort((a, b) => {
-    if (Math.abs(a.y - b.y) <= 6) return a.x - b.x;
+    if (Math.abs(a.y - b.y) <= 8) return a.x - b.x;
     return a.y - b.y;
   });
 
@@ -164,10 +276,10 @@ function clusterItemsIntoFields(
   for (let i = 1; i < rawItems.length; i++) {
     const item = rawItems[i];
     const isSameLine = Math.abs(item.y - current.y) <= 8;
+    // Không nối nếu khoảng cách ngang quá xa (chia 2 cột)
     const isNearX = item.x >= current.x && (item.x - (current.x + current.width)) <= 35;
 
     if (isSameLine && isNearX) {
-      // Nối từ vào dòng hiện tại
       current.text += ' ' + item.text;
       current.width = (item.x + item.width) - current.x;
       current.fontSize = Math.max(current.fontSize, item.fontSize);
@@ -186,10 +298,10 @@ function clusterItemsIntoFields(
     // Tự động phân tích xem dòng chữ có chứa placeholder hoặc biến động không
     const keyInfo = detectFieldKey(cleanText, index);
 
-    // Xác định xem nên canh giữa hay canh trái (nếu x gần tâm canvas)
+    // Xác định xem nên canh giữa hay canh trái
     const centerX = stageWidth / 2;
     const itemCenterX = item.x + item.width / 2;
-    const isCentered = Math.abs(itemCenterX - centerX) < 60;
+    const isCentered = Math.abs(itemCenterX - centerX) < 50;
 
     return {
       id: `detected_${Date.now()}_${index}`,
@@ -218,41 +330,86 @@ function clusterItemsIntoFields(
 function detectFieldKey(text: string, index: number): { label: string; key: string; type: FieldType; prefix?: string; suffix?: string } {
   const lower = text.toLowerCase();
 
-  // Nhận diện Họ tên
-  if (lower.includes('họ và tên') || lower.includes('họ tên') || lower.includes('kính gửi') || lower.includes('ông/bà') || lower.includes('học viên')) {
+  // 1. Nhận diện Họ tên / Kính mời / Ông (bà)
+  if (
+    lower.includes('ông (bà)') ||
+    lower.includes('ông/bà') ||
+    lower.includes('ông:') ||
+    lower.includes('bà:') ||
+    lower.includes('kính mời') ||
+    lower.includes('kính gửi') ||
+    lower.includes('họ và tên') ||
+    lower.includes('họ tên') ||
+    lower.includes('học viên')
+  ) {
     let prefix = '';
-    if (lower.startsWith('kính gửi:')) prefix = 'Kính gửi: ';
-    else if (lower.startsWith('kính gửi')) prefix = 'Kính gửi ';
-    return { label: text, key: 'name', type: 'text', prefix };
+    let label = 'Họ và Tên Khách Mời';
+    if (text.includes('- Ông (bà):') || text.includes('Ông (bà):')) {
+      prefix = '- Ông (bà): ';
+      label = 'Ông (bà)';
+    } else if (lower.startsWith('kính gửi:')) {
+      prefix = 'Kính gửi: ';
+      label = 'Kính gửi';
+    } else if (lower.startsWith('kính mời:')) {
+      prefix = 'Kính mời: ';
+      label = 'Kính mời';
+    }
+    return { label, key: 'name', type: 'text', prefix };
   }
 
-  // Nhận diện Chức vụ / Đơn vị
+  // 2. Nhận diện Địa chỉ
+  if (lower.includes('địa chỉ') || lower.includes('nơi ở') || lower.includes('quê quán') || lower.includes('trú tại')) {
+    let prefix = '';
+    if (text.includes('- Địa chỉ:') || text.includes('Địa chỉ:')) {
+      prefix = '- Địa chỉ: ';
+    }
+    return { label: 'Địa Chỉ Khách Mời', key: 'address', type: 'text', prefix };
+  }
+
+  // 3. Nhận diện Thời gian / Vào lúc
+  if (lower.includes('thời gian') || lower.includes('vào lúc') || lower.includes('hồi:') || lower.includes('khai mạc:')) {
+    let prefix = '';
+    if (text.includes('Thời gian:')) prefix = 'Thời gian: ';
+    return { label: 'Thời Gian Tổ Chức', key: 'time', type: 'text', prefix };
+  }
+
+  // 4. Nhận diện Địa điểm / Tại
+  if (lower.includes('địa điểm') || lower.includes('tại hội trường') || lower.includes('tại nhà') || lower.includes('tại trụ sở')) {
+    let prefix = '';
+    if (text.includes('Địa điểm:')) prefix = 'Địa điểm: ';
+    return { label: 'Địa Điểm Tổ Chức', key: 'location', type: 'text', prefix };
+  }
+
+  // 5. Nhận diện Số hiệu văn bản / Số thư mời
+  if (lower.includes('/tm') || lower.includes('số:') || lower.startsWith('số ') || lower.includes('số hiệu')) {
+    let prefix = '';
+    if (text.includes('Số:')) prefix = 'Số: ';
+    else if (text.startsWith('Số ')) prefix = 'Số: ';
+    return { label: 'Số Thư Mời / Công Văn', key: 'letter_no', type: 'text', prefix };
+  }
+
+  // 6. Nhận diện Chức vụ / Đơn vị
   if (lower.includes('chức vụ') || lower.includes('đơn vị') || lower.includes('công tác') || lower.includes('vị trí')) {
     return { label: text, key: 'title', type: 'text' };
   }
 
-  // Nhận diện Địa chỉ
-  if (lower.includes('địa chỉ') || lower.includes('nơi ở') || lower.includes('quê quán')) {
-    return { label: text, key: 'address', type: 'text' };
-  }
-
-  // Nhận diện Điện thoại
+  // 7. Nhận diện Điện thoại
   if (lower.includes('điện thoại') || lower.includes('sđt') || lower.includes('hotline') || lower.includes('phone')) {
     return { label: text, key: 'phone', type: 'text' };
   }
 
-  // Nhận diện Mã số / Barcode / QR
+  // 8. Nhận diện Mã số / Barcode / QR
   if (lower.includes('mã qr') || lower.includes('qr code')) {
     return { label: text, key: 'qr_code', type: 'qr' };
   }
   if (lower.includes('mã vạch') || lower.includes('barcode') || lower.includes('vận đơn')) {
     return { label: text, key: 'tracking_code', type: 'barcode' };
   }
-  if (lower.includes('mã số') || lower.includes('số hiệu') || lower.includes('mã sv') || lower.includes('số:')) {
+  if (lower.includes('mã số') || lower.includes('mã sv')) {
     return { label: text, key: 'code', type: 'text' };
   }
 
-  // Nhận diện Ngày tháng
+  // 9. Nhận diện Ngày tháng
   if (lower.includes('ngày') && (lower.includes('tháng') || lower.includes('năm'))) {
     return { label: text, key: 'date', type: 'text' };
   }
