@@ -38,6 +38,8 @@ interface CanvasAreaProps {
   onChangePdfPage?: (page: number) => void;
   onUpdateTemplateInfo?: (updates: Partial<TemplateInfo>) => void;
   onUpdateStageDimensions?: (width: number, height: number) => void;
+  onAutoDetectText?: () => void;
+  isDetectingText?: boolean;
 }
 
 export const CanvasArea: React.FC<CanvasAreaProps> = ({
@@ -56,7 +58,9 @@ export const CanvasArea: React.FC<CanvasAreaProps> = ({
   onAddFieldAtPosition,
   onChangePdfPage,
   onUpdateTemplateInfo,
-  onUpdateStageDimensions
+  onUpdateStageDimensions,
+  onAutoDetectText,
+  isDetectingText
 }) => {
   const [zoom, setZoom] = useState<number>(1);
   const [guideX, setGuideX] = useState<number | null>(null);
@@ -357,6 +361,20 @@ export const CanvasArea: React.FC<CanvasAreaProps> = ({
             Đổi phôi
           </button>
         </div>
+
+        {/* Nút Nhận diện văn bản thông minh (Auto Detect & Convert to Editable Text) */}
+        {templateDataUrl && onAutoDetectText && (
+          <button
+            type="button"
+            onClick={onAutoDetectText}
+            disabled={isDetectingText}
+            className="flex items-center gap-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:opacity-60 text-white px-3 py-1.5 rounded-xl border border-indigo-400/50 text-xs font-semibold shadow-lg transition active:scale-95 cursor-pointer"
+            title="Tự động quét và chuyển toàn bộ chữ trên phôi ảnh hoặc PDF thành các trường văn bản có thể chỉnh sửa"
+          >
+            <Sparkles className={`w-3.5 h-3.5 text-amber-300 ${isDetectingText ? 'animate-spin' : 'animate-pulse'}`} />
+            <span>{isDetectingText ? 'Đang nhận diện chữ...' : 'Nhận diện chữ thành văn bản'}</span>
+          </button>
+        )}
 
         {/* Bộ chuyển trang nếu phôi là file PDF nhiều trang */}
         {templateInfo.type === 'pdf' && templateInfo.numPages > 1 && (

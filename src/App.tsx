@@ -4,6 +4,7 @@ import { CheckCircle2, AlertCircle, Info, Loader2 } from 'lucide-react';
 import { FieldConfig, FieldType, RecordData, PresetTemplate, ProjectData, TemplateInfo } from './types';
 import { PRESET_TEMPLATES } from './services/templatePresets';
 import { convertPdfPageToImage, exportBatchPdf } from './services/pdfService';
+import { extractTextFieldsFromPdf, extractTextFieldsFromImage } from './services/ocrService';
 import { exportProjectFile, importProjectFile } from './services/projectService';
 import { Header } from './components/Header';
 import { FieldsSidebar } from './components/FieldsSidebar';
@@ -54,6 +55,10 @@ export const App: React.FC = () => {
   // Export PDF State
   const [isExportingPdf, setIsExportingPdf] = useState<boolean>(false);
   const [exportProgress, setExportProgress] = useState<{ current: number; total: number } | null>(null);
+
+  // Tự động nhận diện văn bản (OCR / PDF Text Extraction)
+  const [isDetectingText, setIsDetectingText] = useState<boolean>(false);
+  const [detectProgress, setDetectProgress] = useState<{ percent: number; status: string } | null>(null);
 
   // Loading overlay khi xử lý file nặng
   const [isLoadingFile, setIsLoadingFile] = useState<boolean>(false);
@@ -524,6 +529,65 @@ export const App: React.FC = () => {
     }, 250);
   };
 
+  // Tự động nhận diện chữ từ phôi và chuyển thành các trường văn bản chỉnh sửa được
+  const handleAutoDetectText = async () => {
+    if (!templateDataUrl) {
+      showToast('Chưa có phôi mẫu để nhận diện!', 'error');
+      return;
+    }
+
+    try {
+      setIsDetectingText(true);
+      setDetectProgress({ percent: 20, status: 'Đang trích xuất cấu trúc văn bản từ phôi mẫu...' });
+
+      let detected: FieldConfig[] = [];
+
+      if (activePdfFile) {
+        // Nhận diện từ file PDF với PDF.js (chính xác tuyệt đối)
+        detected = await extractTextFieldsFromPdf(
+          activePdfFile,
+          templateInfo.currentPage || 1,
+          stageWidth,
+          stageHeight
+        );
+      } else {
+        // Nhận diện từ ảnh bằng Tesseract OCR
+        detected = await extractTextFieldsFromImage(
+          templateDataUrl,
+          stageWidth,
+          stageHeight,
+          (percent, status) => setDetectProgress({ percent, status })
+        );
+      }
+
+      if (detected.length === 0) {
+        showToast('Không tìm thấy văn bản rõ ràng nào trên phôi!', 'info');
+        return;
+      }
+
+      pushHistory();
+      setFields(detected);
+      setSelectedFieldId(detected[0]?.id || null);
+
+      // Tự động hạ độ mờ phôi nền để các trường chữ hiển thị nổi bật dễ chỉnh sửa
+      setTemplateInfo(prev => ({ ...prev, opacity: 0.35 }));
+
+      confetti({
+        particleCount: 90,
+        spread: 75,
+        origin: { y: 0.6 }
+      });
+
+      showToast(`Đã nhận diện thành công ${detected.length} trường văn bản! Bạn có thể nhấp vào từng chữ để chỉnh sửa trực tiếp.`);
+    } catch (err: any) {
+      console.error(err);
+      showToast('Có lỗi xảy ra khi nhận diện văn bản trên mẫu.', 'error');
+    } finally {
+      setIsDetectingText(false);
+      setDetectProgress(null);
+    }
+  };
+
   const selectedField = fields.find(f => f.id === selectedFieldId) || null;
   const currentRecord = records[previewIndex] || {};
   const availableColumns = Array.from(new Set(records.flatMap(r => Object.keys(r)))).filter(Boolean);
@@ -581,6 +645,8 @@ export const App: React.FC = () => {
           onChangePdfPage={handleChangePdfPage}
           onUpdateTemplateInfo={(updates) => setTemplateInfo(prev => ({ ...prev, ...updates }))}
           onUpdateStageDimensions={handleUpdateStageDimensions}
+          onAutoDetectText={handleAutoDetectText}
+          isDetectingText={isDetectingText}
         />
 
         <InspectorSidebar
@@ -592,6 +658,8 @@ export const App: React.FC = () => {
           onCenterHorizontally={handleCenterHorizontally}
           onUpdateTemplateInfo={(updates) => setTemplateInfo(prev => ({ ...prev, ...updates }))}
           onUpdateStageDimensions={handleUpdateStageDimensions}
+          onAutoDetectText={handleAutoDetectText}
+          isDetectingText={isDetectingText}
         />
       </div>
 
@@ -615,12 +683,25 @@ export const App: React.FC = () => {
         printBackground={templateInfo.printBackground}
       />
 
-      {/* 5. Overlay Loading khi xử lý file nặng */}
-      {isLoadingFile && (
+      {/* 5. Overlay Loading khi quét OCR hoặc xử lý file nặng */}
+      {(isLoadingFile || isDetectingText) && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center z-50 animate-in fade-in duration-100">
-          <div className="bg-white p-5 rounded-2xl shadow-2xl flex items-center gap-3">
-            <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
-            <span className="font-semibold text-slate-800 text-sm">Đang xử lý dữ liệu biểu mẫu...</span>
+          <div className="bg-white p-6 rounded-2xl shadow-2xl flex flex-col items-center gap-3 max-w-sm text-center">
+            <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
+            <h4 className="font-bold text-slate-900 text-sm">
+              {isDetectingText ? 'Đang nhận diện chữ trên phôi...' : 'Đang xử lý dữ liệu biểu mẫu...'}
+            </h4>
+            {detectProgress && (
+              <div className="w-full space-y-1.5 mt-1">
+                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div
+                    className="bg-indigo-600 h-full transition-all duration-200"
+                    style={{ width: `${detectProgress.percent}%` }}
+                  />
+                </div>
+                <p className="text-xs text-slate-500">{detectProgress.status}</p>
+              </div>
+            )}
           </div>
         </div>
       )}

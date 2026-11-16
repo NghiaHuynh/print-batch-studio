@@ -26,6 +26,8 @@ interface InspectorSidebarProps {
   onCenterHorizontally: (id: string) => void;
   onUpdateTemplateInfo?: (updates: Partial<TemplateInfo>) => void;
   onUpdateStageDimensions?: (width: number, height: number) => void;
+  onAutoDetectText?: () => void;
+  isDetectingText?: boolean;
 }
 
 const FONT_OPTIONS = [
@@ -45,7 +47,9 @@ export const InspectorSidebar: React.FC<InspectorSidebarProps> = ({
   onUpdateField,
   onCenterHorizontally,
   onUpdateTemplateInfo,
-  onUpdateStageDimensions
+  onUpdateStageDimensions,
+  onAutoDetectText,
+  isDetectingText
 }) => {
   // Khi KHÔNG chọn trường nào: Hiển thị Bảng điều khiển & Chỉnh sửa cấu trúc Phôi Mẫu
   if (!selectedField) {
@@ -78,6 +82,27 @@ export const InspectorSidebar: React.FC<InspectorSidebarProps> = ({
                 <span className="font-semibold text-blue-600">{templateInfo.currentPage} / {templateInfo.numPages}</span>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Tính năng Nhận diện văn bản thông minh từ phôi */}
+        {onAutoDetectText && (
+          <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-3 rounded-xl border border-indigo-200/80 text-xs space-y-2">
+            <div className="flex items-center gap-1.5 font-bold text-indigo-950">
+              <Sparkles className="w-4 h-4 text-indigo-600" />
+              <span>Tự nhận diện chữ trên phôi</span>
+            </div>
+            <p className="text-[11px] text-slate-600 leading-relaxed">
+              Quét toàn bộ chữ trong file PDF hoặc ảnh biểu mẫu và tự động chuyển thành các trường văn bản kéo thả để chỉnh sửa dễ dàng.
+            </p>
+            <button
+              onClick={onAutoDetectText}
+              disabled={isDetectingText}
+              className="w-full py-1.5 px-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white rounded-lg font-semibold text-xs flex items-center justify-center gap-1.5 transition shadow-xs cursor-pointer active:scale-95"
+            >
+              <Sparkles className={`w-3.5 h-3.5 ${isDetectingText ? 'animate-spin' : ''}`} />
+              <span>{isDetectingText ? 'Đang nhận diện chữ...' : 'Nhận diện chữ thành văn bản'}</span>
+            </button>
           </div>
         )}
 
