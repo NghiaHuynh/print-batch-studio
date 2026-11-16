@@ -1,5 +1,5 @@
 import * as pdfjsLib from 'pdfjs-dist';
-import { FieldConfig, FieldType } from '../types';
+import { FieldConfig, FieldType, RecordData } from '../types';
 
 export interface ExtractedTextItem {
   text: string;
@@ -501,4 +501,278 @@ function determineBestFont(pdfFontName: string = ''): string {
     return "'Roboto', sans-serif";
   }
   return "'Inter', sans-serif";
+}
+
+export interface TableOcrResult {
+  headers: string[];
+  records: RecordData[];
+}
+
+// Chuyển đổi trang PDF thành hình ảnh dataUrl để phục vụ OCR quét bảng
+export async function convertPdfPageToImage(file: File, pageNum: number = 1): Promise<string> {
+  const arrayBuffer = await file.arrayBuffer();
+  const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+  const pdf = await loadingTask.promise;
+  const page = await pdf.getPage(Math.min(pageNum, pdf.numPages));
+  const viewport = page.getViewport({ scale: 2.0 });
+  const canvas = document.createElement('canvas');
+  canvas.width = viewport.width;
+  canvas.height = viewport.height;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Không thể tạo canvas context');
+  await page.render({ canvasContext: ctx, viewport }).promise;
+  return canvas.toDataURL('image/png');
+}
+
+// Mẫu nhận diện các đơn vị / cơ quan / chức vụ phổ biến trong bảng danh sách tiếng Việt
+const UNIT_PATTERNS = [
+  /TRƯỜNG\s+THCS/i,
+  /TRƯỜNG\s+TIỂU\s+HỌC/i,
+  /TRƯỜNG\s+MẦM\s+NON/i,
+  /TRƯỜNG\s+NGHỀ/i,
+  /TRƯỜNG\s+[A-ZĐ]/i,
+  /BAN\s+XÂY\s+DỰNG/i,
+  /BAN\s+CHỈ\s+HUY/i,
+  /BAN\s+VẬN\s+ĐỘNG/i,
+  /BAN\s+[A-ZĐ]/i,
+  /HÀNH\s+CHÍNH/i,
+  /PHÒNG\s+KT/i,
+  /PHÒNG\s+[A-ZĐ]/i,
+  /XÃ\s+ĐỘI/i,
+  /CHI\s+BỘ/i,
+  /ĐỊA\s+CHÍNH/i,
+  /GV\s+THCS/i,
+  /GV\s+/i,
+  /CÔNG\s+TY/i,
+  /ỦY\s+BAN/i,
+  /UBND/i,
+  /HỘI\s+NÔNG\s+DÂN/i,
+  /ĐOÀN\s+THANH\s+NIÊN/i,
+  /CÔNG\s+AN/i,
+  /QUÂN\s+SỰ/i
+];
+
+function cleanOcrToken(s: string): string {
+  if (!s) return '';
+  return s.replace(/^[|/\\_.\-\s'",]+|[|/\\_.\-\s'",]+$/g, '').trim();
+}
+
+function splitNameAndUnit(text: string): { name: string; unit: string } {
+  // 1. Tách qua ký tự phân cách | hoặc /
+  const delimMatch = text.match(/^(.*?)\s*([|/])\s*(.*)$/);
+  if (delimMatch && delimMatch[1].trim().length >= 3 && delimMatch[3].trim().length >= 2) {
+    return { name: cleanOcrToken(delimMatch[1]), unit: cleanOcrToken(delimMatch[3]) };
+  }
+
+  // 2. Tách qua từ khóa đơn vị / cơ quan
+  for (const pat of UNIT_PATTERNS) {
+    const m = text.match(pat);
+    if (m && m.index && m.index >= 4) {
+      const namePart = text.slice(0, m.index);
+      const unitPart = text.slice(m.index);
+      return { name: cleanOcrToken(namePart), unit: cleanOcrToken(unitPart) };
+    }
+  }
+
+  return { name: cleanOcrToken(text), unit: '' };
+}
+
+// 3. Nhận diện cấu trúc bảng dữ liệu từ hình ảnh hoặc PDF (chuyển sang danh sách bản ghi)
+export async function parseTableFromImage(
+  source: string | File,
+  onProgress?: (percent: number, status: string) => void
+): Promise<TableOcrResult> {
+  try {
+    let imageSource = source;
+    if (source instanceof File && (source.type === 'application/pdf' || source.name.toLowerCase().endsWith('.pdf'))) {
+      if (onProgress) onProgress(10, 'Đang chuyển đổi trang PDF sang hình ảnh độ phân giải cao...');
+      imageSource = await convertPdfPageToImage(source, 1);
+    }
+
+    const { createWorker, PSM } = await import('tesseract.js');
+    if (onProgress) onProgress(20, 'Đang tiền xử lý ảnh và khử nhiễu bảng...');
+
+    const { dataUrl: processedUrl } = await preprocessImageForOcr(imageSource, 2000);
+
+    if (onProgress) onProgress(30, 'Đang tải bộ nhận diện quang học tiếng Việt...');
+    let worker;
+    try {
+      worker = await createWorker('vie', 1, {
+        logger: (m) => {
+          if (m.status === 'recognizing text' && onProgress) {
+            const p = Math.round(35 + m.progress * 55);
+            onProgress(p, `Đang quét nhận diện chữ trong bảng: ${Math.round(m.progress * 100)}%`);
+          }
+        }
+      });
+      await worker.setParameters({ tessedit_pageseg_mode: PSM.AUTO });
+    } catch (e) {
+      console.warn('Lỗi tải model vie, fallback sang eng:', e);
+      worker = await createWorker('eng', 1);
+      await worker.setParameters({ tessedit_pageseg_mode: PSM.AUTO });
+    }
+
+    if (onProgress) onProgress(50, 'Đang quét và phân tích tọa độ từng ô dữ liệu...');
+    const ret = await worker.recognize(processedUrl, {}, { tsv: true });
+    await worker.terminate();
+
+    if (onProgress) onProgress(92, 'Đang gom hàng và phân tách các cột dữ liệu...');
+
+    const tsvContent = ret.data.tsv || '';
+    const lines = tsvContent.split('\n');
+    const words: Array<{ left: number; top: number; width: number; height: number; right: number; conf: number; text: string }> = [];
+
+    for (let i = 1; i < lines.length; i++) {
+      const parts = lines[i].split('\t');
+      if (parts.length < 12) continue;
+      if (parseInt(parts[0], 10) !== 5) continue; // Level 5 là Word
+      const left = parseInt(parts[6], 10);
+      const top = parseInt(parts[7], 10);
+      const width = parseInt(parts[8], 10);
+      const height = parseInt(parts[9], 10);
+      const conf = parseFloat(parts[10]);
+      const text = parts[11]?.trim();
+
+      if (!text || conf < 15) continue;
+      words.push({ left, top, width, height, right: left + width, conf, text });
+    }
+
+    if (words.length === 0) {
+      throw new Error('Không phát hiện được văn bản nào trong bảng ảnh!');
+    }
+
+    // 1. Gom các từ thành từng hàng theo tọa độ Y (ngưỡng 15px)
+    words.sort((a, b) => a.top - b.top);
+    const rows: Array<{ centerY: number; words: typeof words }> = [];
+    words.forEach(w => {
+      const centerY = w.top + w.height / 2;
+      let r = rows.find(row => Math.abs(row.centerY - centerY) <= 15);
+      if (!r) {
+        r = { centerY, words: [] };
+        rows.push(r);
+      }
+      r.words.push(w);
+    });
+    rows.sort((a, b) => a.centerY - b.centerY);
+
+    // 2. Gom các từ trong mỗi hàng thành các ô (cells) dựa vào khoảng trống ngang (gap > 26px)
+    const rawTableRows: string[][] = [];
+    rows.forEach(r => {
+      r.words.sort((a, b) => a.left - b.left);
+      const cells: string[] = [];
+      let currentCellWords: typeof words = [];
+
+      r.words.forEach((w, i) => {
+        if (i === 0) {
+          currentCellWords.push(w);
+        } else {
+          const prev = r.words[i - 1];
+          const gap = w.left - prev.right;
+          if (gap > 26) {
+            cells.push(currentCellWords.map(cw => cw.text).join(' '));
+            currentCellWords = [w];
+          } else {
+            currentCellWords.push(w);
+          }
+        }
+      });
+      if (currentCellWords.length > 0) {
+        cells.push(currentCellWords.map(cw => cw.text).join(' '));
+      }
+
+      // Chỉ lấy những dòng có từ 2 cột trở lên (cấu trúc bảng)
+      if (cells.length >= 2) {
+        rawTableRows.push(cells);
+      }
+    });
+
+    if (rawTableRows.length === 0) {
+      throw new Error('Không nhận diện được cấu trúc bảng trong ảnh. Vui lòng chụp rõ các cột hơn!');
+    }
+
+    // 3. Kiểm tra xem dòng đầu tiên có phải là tiêu đề (Header row) không
+    let startIndex = 0;
+    const firstRowText = rawTableRows[0].join(' ').toLowerCase();
+    const hasHeaderKeywords = firstRowText.includes('stt') || 
+                              firstRowText.includes('họ') || 
+                              firstRowText.includes('tên') || 
+                              firstRowText.includes('đơn vị') || 
+                              firstRowText.includes('chức vụ') || 
+                              firstRowText.includes('địa chỉ') || 
+                              firstRowText.includes('ký nhận');
+
+    let headers: string[] = ['STT', 'Họ và Tên', 'Đơn vị / Chức vụ', 'Địa chỉ'];
+
+    if (hasHeaderKeywords) {
+      headers = rawTableRows[0].map(c => cleanOcrToken(c) || 'Cột');
+      startIndex = 1;
+    }
+
+    // 4. Trích xuất các dòng dữ liệu thành danh sách RecordData
+    const records: RecordData[] = [];
+
+    for (let r = startIndex; r < rawTableRows.length; r++) {
+      const cells = rawTableRows[r];
+      let stt = '';
+      let name = '';
+      let unit = '';
+      let address = '';
+
+      let firstCell = cells[0];
+      const sttMatch = firstCell.match(/^(\d{1,3})[\s._|/]+(.*)$/);
+      if (sttMatch) {
+        stt = sttMatch[1];
+        firstCell = sttMatch[2];
+      } else {
+        stt = String(records.length + 1);
+      }
+
+      if (cells.length === 3) {
+        name = cleanOcrToken(firstCell);
+        unit = cleanOcrToken(cells[1]);
+        address = cleanOcrToken(cells[2]);
+      } else if (cells.length === 2) {
+        const split = splitNameAndUnit(firstCell);
+        name = split.name;
+        unit = split.unit;
+        address = cleanOcrToken(cells[1]);
+      } else if (cells.length >= 4) {
+        if (/^\d+$/.test(cleanOcrToken(cells[0]))) {
+          stt = cleanOcrToken(cells[0]);
+          name = cleanOcrToken(cells[1]);
+          unit = cleanOcrToken(cells[2]);
+          address = cleanOcrToken(cells[3]);
+        } else {
+          name = cleanOcrToken(cells[0]);
+          unit = cleanOcrToken(cells[1]);
+          address = cleanOcrToken(cells[2]);
+        }
+      }
+
+      // Bỏ qua dòng rác OCR nếu tên quá ngắn hoặc rỗng
+      if (!name || name.length < 2) continue;
+
+      const record: RecordData = {
+        'STT': stt,
+        'Họ và Tên': name,
+        'name': name,
+        'Đơn vị / Chức vụ': unit,
+        'don_vi': unit,
+        'Địa chỉ': address,
+        'address': address
+      };
+
+      records.push(record);
+    }
+
+    if (onProgress) onProgress(100, `Hoàn tất! Đã trích xuất ${records.length} dòng dữ liệu.`);
+
+    return {
+      headers,
+      records
+    };
+  } catch (err) {
+    console.error('Lỗi nhận diện bảng từ ảnh:', err);
+    throw err;
+  }
 }

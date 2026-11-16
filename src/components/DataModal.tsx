@@ -9,10 +9,14 @@ import {
   Search, 
   Check, 
   Sparkles,
-  AlertCircle
+  AlertCircle,
+  Camera,
+  UploadCloud,
+  FileUp
 } from 'lucide-react';
 import { FieldConfig, RecordData } from '../types';
 import { parseExcelFile, autoMapColumns, exportSampleExcel } from '../services/excelService';
+import { parseTableFromImage } from '../services/ocrService';
 
 interface DataModalProps {
   isOpen: boolean;
@@ -36,12 +40,19 @@ export const DataModal: React.FC<DataModalProps> = ({
   const [pastedText, setPastedText] = useState('');
   const [importStatus, setImportStatus] = useState<string | null>(null);
 
-  // Lưu trữ headers phát hiện từ file Excel gần nhất để mapping
+  // Lưu trữ headers phát hiện từ file Excel hoặc ảnh OCR gần nhất để mapping
   const [detectedHeaders, setDetectedHeaders] = useState<string[]>([]);
   const [showMappingPanel, setShowMappingPanel] = useState(false);
   const [columnMapping, setColumnMapping] = useState<Record<string, string>>({});
 
+  // Kéo thả và OCR quét bảng từ hình ảnh / PDF
+  const [isDragging, setIsDragging] = useState(false);
+  const [isOcrScanning, setIsOcrScanning] = useState(false);
+  const [ocrProgress, setOcrProgress] = useState(0);
+  const [ocrStatusMsg, setOcrStatusMsg] = useState('');
+
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   if (!isOpen) return null;
 
@@ -51,17 +62,14 @@ export const DataModal: React.FC<DataModalProps> = ({
     ...records.flatMap(r => Object.keys(r))
   ])).filter(Boolean);
 
-  // Xử lý upload file Excel / CSV
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  // Xử lý nạp file Excel / CSV
+  const processExcelFile = async (file: File) => {
     try {
       setImportStatus('Đang đọc dữ liệu từ file Excel...');
       const { headers, records: importedRecords } = await parseExcelFile(file);
 
       if (importedRecords.length === 0) {
-        setImportStatus('Không tìm thấy dữ liệu trong file!');
+        setImportStatus('Không tìm thấy dữ liệu trong file Excel!');
         return;
       }
 
@@ -70,14 +78,101 @@ export const DataModal: React.FC<DataModalProps> = ({
       setColumnMapping(autoMap);
       setShowMappingPanel(true);
 
-      // Lưu tạm records
       onUpdateRecords(importedRecords);
-      setImportStatus(`Đã nhập thành công ${importedRecords.length} dòng dữ liệu!`);
+      setImportStatus(`Đã nhập thành công ${importedRecords.length} dòng dữ liệu từ Excel!`);
     } catch (err: any) {
       console.error(err);
       setImportStatus(`Lỗi khi đọc file: ${err.message || 'Không đúng định dạng'}`);
+    }
+  };
+
+  // Xử lý nạp file ảnh / PDF bằng OCR bảng
+  const processImageOrPdfFile = async (file: File) => {
+    try {
+      setIsOcrScanning(true);
+      setOcrProgress(5);
+      setOcrStatusMsg('Đang bắt đầu quét bảng dữ liệu...');
+
+      const { headers, records: importedRecords } = await parseTableFromImage(file, (p, msg) => {
+        setOcrProgress(p);
+        setOcrStatusMsg(msg);
+      });
+
+      if (importedRecords.length === 0) {
+        setImportStatus('Không nhận diện được dòng dữ liệu nào trong ảnh/PDF!');
+        return;
+      }
+
+      setDetectedHeaders(headers);
+      const autoMap = autoMapColumns(headers, fields);
+      setColumnMapping(autoMap);
+      setShowMappingPanel(true);
+
+      // Nếu đã có dữ liệu trước đó, nối tiếp thêm vào; nếu rỗng thì thay thế
+      if (records.length === 0) {
+        onUpdateRecords(importedRecords);
+      } else {
+        onUpdateRecords([...records, ...importedRecords]);
+      }
+
+      setImportStatus(`📷 Đã quét thành công ${importedRecords.length} dòng dữ liệu từ ảnh/PDF!`);
+    } catch (err: any) {
+      console.error(err);
+      setImportStatus(`Lỗi quét bảng: ${err.message || 'Không thể nhận diện hình ảnh'}`);
     } finally {
-      e.target.value = '';
+      setIsOcrScanning(false);
+      setOcrProgress(0);
+      setOcrStatusMsg('');
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      await processExcelFile(file);
+    }
+    e.target.value = '';
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      await processImageOrPdfFile(file);
+    }
+    e.target.value = '';
+  };
+
+  // Kéo thả file trực tiếp vào Modal
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const files = e.dataTransfer.files;
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+    const nameLower = file.name.toLowerCase();
+
+    if (nameLower.endsWith('.xlsx') || nameLower.endsWith('.xls') || nameLower.endsWith('.csv')) {
+      await processExcelFile(file);
+    } else if (file.type.startsWith('image/') || nameLower.endsWith('.pdf')) {
+      await processImageOrPdfFile(file);
+    } else {
+      setImportStatus('Vui lòng kéo thả file Excel (.xlsx), hình ảnh (.jpg, .png, .webp) hoặc file PDF!');
     }
   };
 
@@ -177,9 +272,49 @@ export const DataModal: React.FC<DataModalProps> = ({
   });
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+    <div 
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4"
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150 relative">
         
+        {/* Kéo thả Visual Target Overlay */}
+        {isDragging && (
+          <div className="absolute inset-0 z-50 bg-indigo-600/90 backdrop-blur-xs flex flex-col items-center justify-center text-white border-4 border-dashed border-white m-3 rounded-2xl animate-in fade-in duration-150 pointer-events-none">
+            <UploadCloud className="w-16 h-16 mb-3 animate-bounce text-white" />
+            <h4 className="text-xl font-bold mb-1">Thả file vào đây để quét dữ liệu tự động</h4>
+            <p className="text-xs text-indigo-100 max-w-md text-center">
+              Hỗ trợ ảnh chụp bảng danh sách (JPG, PNG, WebP), file PDF hoặc file Excel. Hệ thống sẽ tự động quét OCR tiếng Việt và phân tách các cột họ tên, đơn vị, địa chỉ!
+            </p>
+          </div>
+        )}
+
+        {/* OCR Scanning Progress Modal Overlay */}
+        {isOcrScanning && (
+          <div className="absolute inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex flex-col items-center justify-center p-6 text-white rounded-2xl animate-in fade-in duration-150">
+            <div className="bg-white text-slate-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full flex flex-col items-center text-center animate-in zoom-in-95 duration-150">
+              <div className="p-3 bg-indigo-100 text-indigo-600 rounded-2xl mb-3 animate-pulse">
+                <Camera className="w-8 h-8" />
+              </div>
+              <h4 className="text-base font-bold text-slate-900 mb-1">Đang Quét Bảng Dữ Liệu</h4>
+              <p className="text-xs text-slate-500 mb-4 min-h-[32px] flex items-center justify-center">
+                {ocrStatusMsg || 'Đang nhận diện quang học OCR...'}
+              </p>
+              
+              {/* Progress Bar */}
+              <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden mb-2">
+                <div 
+                  className="bg-indigo-600 h-full rounded-full transition-all duration-300 ease-out"
+                  style={{ width: `${ocrProgress}%` }}
+                />
+              </div>
+              <span className="text-xs font-bold text-indigo-600">{ocrProgress}%</span>
+            </div>
+          </div>
+        )}
+
         {/* Header Modal */}
         <div className="px-6 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
           <div className="flex items-center gap-3">
@@ -188,7 +323,9 @@ export const DataModal: React.FC<DataModalProps> = ({
             </div>
             <div>
               <h3 className="font-bold text-base text-slate-900">Danh Sách Dữ Liệu In Hàng Loạt</h3>
-              <p className="text-xs text-slate-500">Tải file Excel (.xlsx), CSV, dán trực tiếp hoặc thêm thủ công</p>
+              <p className="text-xs text-slate-500">
+                Tải file Excel, dán dữ liệu hoặc <strong>kéo thả trực tiếp ảnh chụp bảng / PDF để OCR tự động</strong>
+              </p>
             </div>
           </div>
           <button
@@ -202,6 +339,23 @@ export const DataModal: React.FC<DataModalProps> = ({
         {/* Thanh công cụ hành động */}
         <div className="px-6 py-2.5 bg-indigo-50/60 border-b border-indigo-100 flex flex-wrap items-center justify-between gap-2 shrink-0">
           <div className="flex flex-wrap items-center gap-2">
+            {/* Quét bảng từ Ảnh / PDF */}
+            <button
+              onClick={() => imageInputRef.current?.click()}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition"
+              title="Quét bảng danh sách khách mời từ ảnh chụp giấy hoặc file PDF"
+            >
+              <Camera className="w-3.5 h-3.5" />
+              <span>📷 Quét Bảng từ Ảnh / PDF</span>
+            </button>
+            <input
+              ref={imageInputRef}
+              type="file"
+              accept="image/png, image/jpeg, image/jpg, image/webp, application/pdf"
+              className="hidden"
+              onChange={handleImageUpload}
+            />
+
             {/* Nhập file Excel */}
             <button
               onClick={() => fileInputRef.current?.click()}
@@ -230,7 +384,7 @@ export const DataModal: React.FC<DataModalProps> = ({
             {/* Thêm dòng */}
             <button
               onClick={handleAddRow}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition"
+              className="bg-slate-800 hover:bg-slate-900 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Thêm dòng</span>
@@ -366,11 +520,29 @@ export const DataModal: React.FC<DataModalProps> = ({
         <div className="flex-1 overflow-auto p-4 sm:p-6">
           {records.length === 0 ? (
             <div className="py-16 text-center text-slate-400 text-xs flex flex-col items-center justify-center">
-              <FileSpreadsheet className="w-12 h-12 stroke-1 mb-2 text-slate-300" />
-              <p className="font-semibold text-slate-600 text-sm">Chưa có bản ghi in nào</p>
-              <p className="text-slate-400 mt-1 max-w-sm">
-                Hãy tải lên một file Excel (.xlsx), dán dữ liệu hoặc bấm "Thêm dòng" ở trên để nhập thông tin in hàng loạt.
+              <div className="p-4 bg-indigo-50 text-indigo-500 rounded-2xl mb-3">
+                <Camera className="w-10 h-10 stroke-1 text-indigo-600" />
+              </div>
+              <p className="font-semibold text-slate-700 text-sm">Chưa có bản ghi in nào</p>
+              <p className="text-slate-400 mt-1 max-w-md">
+                Kéo & thả ảnh chụp bảng danh sách (giấy mời, biên bản họp), file PDF hoặc file Excel (.xlsx) trực tiếp vào đây để tự động nhận diện.
               </p>
+              <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5">
+                <button
+                  onClick={() => imageInputRef.current?.click()}
+                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold flex items-center gap-2 transition shadow-xs"
+                >
+                  <Camera className="w-4 h-4" />
+                  <span>📷 Quét Bảng từ Ảnh / PDF</span>
+                </button>
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded-xl text-xs font-semibold flex items-center gap-2 transition shadow-xs"
+                >
+                  <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+                  <span>Nhập File Excel / CSV</span>
+                </button>
+              </div>
             </div>
           ) : (
             <table className="w-full text-left border-collapse text-xs">
