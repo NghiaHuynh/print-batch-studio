@@ -1,0 +1,435 @@
+import React from 'react';
+import { 
+  Sliders, 
+  AlignCenterHorizontal, 
+  AlignLeft, 
+  AlignCenter, 
+  AlignRight, 
+  Italic, 
+  CaseUpper, 
+  Palette, 
+  HelpCircle,
+  FileText,
+  RotateCw,
+  Eye,
+  EyeOff,
+  Sparkles
+} from 'lucide-react';
+import { FieldConfig, TemplateInfo } from '../types';
+
+interface InspectorSidebarProps {
+  selectedField: FieldConfig | null;
+  stageWidth: number;
+  stageHeight: number;
+  templateInfo?: TemplateInfo;
+  onUpdateField: (id: string, updates: Partial<FieldConfig>) => void;
+  onCenterHorizontally: (id: string) => void;
+  onUpdateTemplateInfo?: (updates: Partial<TemplateInfo>) => void;
+  onUpdateStageDimensions?: (width: number, height: number) => void;
+}
+
+const FONT_OPTIONS = [
+  { label: 'Inter (Hiện đại, rõ nét)', value: "'Inter', sans-serif" },
+  { label: 'Playfair Display (Trang trọng, có chân)', value: "'Playfair Display', serif" },
+  { label: 'Roboto (Chuẩn văn bản)', value: "'Roboto', sans-serif" },
+  { label: 'Merriweather (Cổ điển, thanh lịch)', value: "'Merriweather', serif" },
+  { label: 'Montserrat (Hình học, ấn tượng)', value: "'Montserrat', sans-serif" },
+  { label: 'Space Mono (Đánh máy / Mã số)', value: "'Space Mono', monospace" }
+];
+
+export const InspectorSidebar: React.FC<InspectorSidebarProps> = ({
+  selectedField,
+  stageWidth,
+  stageHeight,
+  templateInfo,
+  onUpdateField,
+  onCenterHorizontally,
+  onUpdateTemplateInfo,
+  onUpdateStageDimensions
+}) => {
+  // Khi KHÔNG chọn trường nào: Hiển thị Bảng điều khiển & Chỉnh sửa cấu trúc Phôi Mẫu
+  if (!selectedField) {
+    return (
+      <aside className="w-full lg:w-80 bg-white border-t lg:border-t-0 lg:border-l border-slate-200 p-4 flex flex-col shrink-0 z-20 text-slate-700 overflow-y-auto select-none space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div className="flex items-center gap-2">
+            <Sliders className="w-4 h-4 text-blue-600" />
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800">Cấu hình Biểu Mẫu</h2>
+          </div>
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+            {stageWidth > stageHeight ? 'Khổ ngang' : 'Khổ dọc'}
+          </span>
+        </div>
+
+        {/* Thông tin phôi hiện tại */}
+        {templateInfo && (
+          <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1.5">
+            <div className="flex items-center gap-1.5 font-semibold text-slate-800">
+              <FileText className="w-3.5 h-3.5 text-blue-600" />
+              <span className="truncate" title={templateInfo.name}>{templateInfo.name}</span>
+            </div>
+            <div className="text-[11px] text-slate-500 flex justify-between">
+              <span>Định dạng phôi:</span>
+              <span className="font-semibold uppercase text-slate-700">{templateInfo.type}</span>
+            </div>
+            {templateInfo.type === 'pdf' && (
+              <div className="text-[11px] text-slate-500 flex justify-between">
+                <span>Số trang PDF:</span>
+                <span className="font-semibold text-blue-600">{templateInfo.currentPage} / {templateInfo.numPages}</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Chỉnh sửa Kích thước & Khổ giấy chuẩn */}
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+            Kích thước khung phôi (px)
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="bg-slate-50 p-1.5 px-2 rounded-lg border border-slate-200 flex items-center justify-between">
+              <span className="text-[11px] font-bold text-slate-400">Rộng:</span>
+              <input
+                type="number"
+                value={stageWidth}
+                onChange={(e) => onUpdateStageDimensions && onUpdateStageDimensions(parseInt(e.target.value) || 100, stageHeight)}
+                className="w-16 text-right bg-transparent font-mono text-xs font-semibold text-slate-800 focus:outline-none"
+              />
+              <span className="text-[10px] text-slate-400">px</span>
+            </div>
+            <div className="bg-slate-50 p-1.5 px-2 rounded-lg border border-slate-200 flex items-center justify-between">
+              <span className="text-[11px] font-bold text-slate-400">Cao:</span>
+              <input
+                type="number"
+                value={stageHeight}
+                onChange={(e) => onUpdateStageDimensions && onUpdateStageDimensions(stageWidth, parseInt(e.target.value) || 100)}
+                className="w-16 text-right bg-transparent font-mono text-xs font-semibold text-slate-800 focus:outline-none"
+              />
+              <span className="text-[10px] text-slate-400">px</span>
+            </div>
+          </div>
+
+          {/* Các nút khổ giấy chuẩn */}
+          <div className="grid grid-cols-2 gap-1.5 mt-2">
+            <button
+              onClick={() => onUpdateStageDimensions && onUpdateStageDimensions(842, 595)}
+              className="py-1 px-2 text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition text-center"
+            >
+              A4 Ngang (842×595)
+            </button>
+            <button
+              onClick={() => onUpdateStageDimensions && onUpdateStageDimensions(595, 842)}
+              className="py-1 px-2 text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition text-center"
+            >
+              A4 Dọc (595×842)
+            </button>
+            <button
+              onClick={() => onUpdateStageDimensions && onUpdateStageDimensions(595, 420)}
+              className="py-1 px-2 text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition text-center"
+            >
+              A5 Ngang (595×420)
+            </button>
+            <button
+              onClick={() => onUpdateStageDimensions && onUpdateStageDimensions(480, 720)}
+              className="py-1 px-2 text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition text-center"
+            >
+              Thẻ Đeo (480×720)
+            </button>
+          </div>
+
+          <button
+            onClick={() => onUpdateStageDimensions && onUpdateStageDimensions(stageHeight, stageWidth)}
+            className="w-full mt-2 py-1.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition"
+          >
+            <RotateCw className="w-3.5 h-3.5" />
+            <span>Đổi hướng phôi (Ngang ⇄ Dọc)</span>
+          </button>
+        </div>
+
+        {/* Tùy chỉnh Độ mờ & Chế độ in */}
+        {templateInfo && (
+          <div className="pt-2 border-t border-slate-100 space-y-3">
+            <div>
+              <div className="flex justify-between items-center text-xs font-semibold text-slate-700 mb-1">
+                <span>Độ mờ phôi nền khi căn chỉnh</span>
+                <span className="font-mono text-blue-600">{Math.round(templateInfo.opacity * 100)}%</span>
+              </div>
+              <input
+                type="range"
+                min="0.2"
+                max="1"
+                step="0.05"
+                value={templateInfo.opacity}
+                onChange={(e) => onUpdateTemplateInfo && onUpdateTemplateInfo({ opacity: parseFloat(e.target.value) })}
+                className="w-full accent-blue-600 cursor-pointer"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Chế độ In / Xuất file PDF</label>
+              <button
+                onClick={() => onUpdateTemplateInfo && onUpdateTemplateInfo({ printBackground: !templateInfo.printBackground })}
+                className={`w-full py-2 px-3 rounded-xl border text-xs font-semibold flex items-center justify-between transition ${
+                  templateInfo.printBackground
+                    ? 'bg-blue-50 border-blue-300 text-blue-700'
+                    : 'bg-amber-50 border-amber-300 text-amber-800'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  {templateInfo.printBackground ? <Eye className="w-4 h-4 text-blue-600" /> : <EyeOff className="w-4 h-4 text-amber-600" />}
+                  <span>{templateInfo.printBackground ? 'In kèm ảnh phôi nền' : 'Chỉ in chữ (ẩn ảnh phôi)'}</span>
+                </div>
+                <span className="text-[10px] font-bold uppercase underline">Đổi</span>
+              </button>
+              <p className="text-[10px] text-slate-400 mt-1">
+                * Chọn "Chỉ in chữ" nếu bạn đã có sẵn phôi giấy in hoa văn sẵn để in đè chữ lên.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Gợi ý hướng dẫn */}
+        <div className="bg-blue-50/70 border border-blue-200/80 rounded-xl p-3 text-xs text-blue-900 space-y-1 mt-auto">
+          <div className="font-semibold flex items-center gap-1.5">
+            <Sparkles className="w-4 h-4 text-blue-600" />
+            <span>Mẹo căn chỉnh mẫu mới:</span>
+          </div>
+          <p className="text-[11px] text-blue-800">• <b>Nhấp đúp chuột</b> trực tiếp vào bất kỳ vị trí nào trên phôi để đặt trường ngay tại đó.</p>
+          <p className="text-[11px] text-blue-800">• Chọn một trường để chỉnh font chữ, cỡ chữ và màu sắc.</p>
+        </div>
+      </aside>
+    );
+  }
+
+  // Khi ĐANG CHỌN một trường: Hiển thị thuộc tính của trường
+  return (
+    <aside className="w-full lg:w-80 bg-white border-t lg:border-t-0 lg:border-l border-slate-200 p-4 flex flex-col shrink-0 z-20 overflow-y-auto max-h-72 lg:max-h-full select-none">
+      {/* Header Inspector */}
+      <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div>
+          <h2 className="text-xs font-bold text-slate-900 truncate max-w-[170px]">{selectedField.label}</h2>
+          <span className="text-[10px] font-mono text-slate-400">key: {selectedField.key}</span>
+        </div>
+        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+          selectedField.type === 'qr' ? 'bg-indigo-100 text-indigo-700' :
+          selectedField.type === 'barcode' ? 'bg-purple-100 text-purple-700' :
+          'bg-blue-100 text-blue-700'
+        }`}>
+          {selectedField.type}
+        </span>
+      </div>
+
+      <div className="mt-3.5 space-y-4">
+        {/* Tọa độ X, Y */}
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex justify-between">
+            <span>Tọa độ vị trí (Pixel)</span>
+            <span className="text-[10px] text-slate-400">Kéo hoặc gõ số</span>
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="bg-slate-50 p-1.5 px-2.5 rounded-lg border border-slate-200 flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-400">X:</span>
+              <input
+                type="number"
+                value={selectedField.x}
+                onChange={(e) => onUpdateField(selectedField.id, { x: parseInt(e.target.value) || 0 })}
+                className="w-16 text-right bg-transparent font-mono text-xs font-semibold text-slate-800 focus:outline-none"
+              />
+              <span className="text-[11px] text-slate-400">px</span>
+            </div>
+            <div className="bg-slate-50 p-1.5 px-2.5 rounded-lg border border-slate-200 flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-400">Y:</span>
+              <input
+                type="number"
+                value={selectedField.y}
+                onChange={(e) => onUpdateField(selectedField.id, { y: parseInt(e.target.value) || 0 })}
+                className="w-16 text-right bg-transparent font-mono text-xs font-semibold text-slate-800 focus:outline-none"
+              />
+              <span className="text-[11px] text-slate-400">px</span>
+            </div>
+          </div>
+
+          <button
+            onClick={() => onCenterHorizontally(selectedField.id)}
+            className="mt-2 w-full py-1.5 px-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition"
+          >
+            <AlignCenterHorizontal className="w-3.5 h-3.5" />
+            <span>Căn giữa phôi theo chiều ngang</span>
+          </button>
+        </div>
+
+        {/* Cấu hình cho TEXT */}
+        {selectedField.type === 'text' && (
+          <>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Kiểu chữ (Font Family)</label>
+              <select
+                value={selectedField.fontFamily}
+                onChange={(e) => onUpdateField(selectedField.id, { fontFamily: e.target.value })}
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-blue-600"
+              >
+                {FONT_OPTIONS.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Cỡ chữ (px)</label>
+                <input
+                  type="number"
+                  min={8}
+                  max={120}
+                  value={selectedField.fontSize}
+                  onChange={(e) => onUpdateField(selectedField.id, { fontSize: parseInt(e.target.value) || 16 })}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-blue-600 font-mono"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Độ đậm</label>
+                <select
+                  value={selectedField.fontWeight}
+                  onChange={(e) => onUpdateField(selectedField.id, { fontWeight: e.target.value as any })}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-blue-600"
+                >
+                  <option value="300">Mảnh (Light)</option>
+                  <option value="400">Thường (Regular)</option>
+                  <option value="500">Vừa (Medium)</option>
+                  <option value="600">Hơi đậm (Semi-Bold)</option>
+                  <option value="700">Đậm (Bold)</option>
+                  <option value="800">Cực đậm (Extra-Bold)</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Căn lề & Kiểu chữ</label>
+              <div className="flex items-center gap-1">
+                <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5">
+                  <button
+                    onClick={() => onUpdateField(selectedField.id, { align: 'left' })}
+                    className={`p-1.5 rounded transition ${selectedField.align === 'left' ? 'bg-white shadow-xs text-blue-600' : 'text-slate-400 hover:text-slate-600'}`}
+                    title="Canh trái"
+                  >
+                    <AlignLeft className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => onUpdateField(selectedField.id, { align: 'center' })}
+                    className={`p-1.5 rounded transition ${selectedField.align === 'center' ? 'bg-white shadow-xs text-blue-600' : 'text-slate-400 hover:text-slate-600'}`}
+                    title="Canh giữa"
+                  >
+                    <AlignCenter className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => onUpdateField(selectedField.id, { align: 'right' })}
+                    className={`p-1.5 rounded transition ${selectedField.align === 'right' ? 'bg-white shadow-xs text-blue-600' : 'text-slate-400 hover:text-slate-600'}`}
+                    title="Canh phải"
+                  >
+                    <AlignRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                <button
+                  onClick={() => onUpdateField(selectedField.id, { fontStyle: selectedField.fontStyle === 'italic' ? 'normal' : 'italic' })}
+                  className={`p-2 rounded-lg border transition ${selectedField.fontStyle === 'italic' ? 'bg-blue-50 border-blue-300 text-blue-600' : 'bg-slate-50 border-slate-200 text-slate-400 hover:text-slate-600'}`}
+                  title="Chữ nghiêng"
+                >
+                  <Italic className="w-3.5 h-3.5" />
+                </button>
+
+                <button
+                  onClick={() => onUpdateField(selectedField.id, { textTransform: selectedField.textTransform === 'uppercase' ? 'none' : 'uppercase' })}
+                  className={`p-2 rounded-lg border transition ${selectedField.textTransform === 'uppercase' ? 'bg-blue-50 border-blue-300 text-blue-600' : 'bg-slate-50 border-slate-200 text-slate-400 hover:text-slate-600'}`}
+                  title="In hoa toàn bộ"
+                >
+                  <CaseUpper className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1.5">
+                <Palette className="w-3.5 h-3.5 text-slate-400" />
+                <span>Màu chữ</span>
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={selectedField.color}
+                  onChange={(e) => onUpdateField(selectedField.id, { color: e.target.value })}
+                  className="w-9 h-8 rounded-lg cursor-pointer border border-slate-200 p-0.5 bg-white"
+                />
+                <input
+                  type="text"
+                  value={selectedField.color}
+                  onChange={(e) => onUpdateField(selectedField.id, { color: e.target.value })}
+                  className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-mono uppercase text-slate-700"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-600 mb-1">Tiền tố (Trước)</label>
+                <input
+                  type="text"
+                  placeholder="Kính gửi: "
+                  value={selectedField.prefix || ''}
+                  onChange={(e) => onUpdateField(selectedField.id, { prefix: e.target.value })}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs text-slate-800"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-600 mb-1">Hậu tố (Sau)</label>
+                <input
+                  type="text"
+                  placeholder=" VNĐ"
+                  value={selectedField.suffix || ''}
+                  onChange={(e) => onUpdateField(selectedField.id, { suffix: e.target.value })}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs text-slate-800"
+                />
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Cấu hình cho QR CODE */}
+        {selectedField.type === 'qr' && (
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Kích thước mã QR (px)</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="range"
+                min={50}
+                max={300}
+                value={selectedField.qrSize || 100}
+                onChange={(e) => onUpdateField(selectedField.id, { qrSize: parseInt(e.target.value) || 100 })}
+                className="flex-1 accent-indigo-600 cursor-pointer"
+              />
+              <span className="font-mono text-xs font-bold text-slate-700 w-12 text-right">
+                {selectedField.qrSize || 100}px
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Cấu hình cho BARCODE */}
+        {selectedField.type === 'barcode' && (
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Chuẩn mã vạch</label>
+            <select
+              value={selectedField.barcodeFormat || 'CODE128'}
+              onChange={(e) => onUpdateField(selectedField.id, { barcodeFormat: e.target.value as any })}
+              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-purple-600"
+            >
+              <option value="CODE128">CODE128 (Chuẩn quốc tế đa năng, chữ & số)</option>
+              <option value="EAN13">EAN13 (Mã số thương phẩm 13 chữ số)</option>
+              <option value="UPC">UPC (Chuẩn bán lẻ Bắc Mỹ)</option>
+            </select>
+          </div>
+        )}
+      </div>
+    </aside>
+  );
+};

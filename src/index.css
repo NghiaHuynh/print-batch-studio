@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Scrollbar mượt mà */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Nền caro canvas làm việc */
+.canvas-grid-bg {
+  background-color: #0f172a;
+  background-image: 
+    radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 24px 24px, 48px 48px, 48px 48px;
+}
+
+/* Trường kéo thả */
+.draggable-field {
+  position: absolute;
+  cursor: grab;
+  user-select: none;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+  z-index: 10;
+  white-space: nowrap;
+}
+.draggable-field:active {
+  cursor: grabbing;
+}
+.draggable-field.selected {
+  outline: 2px dashed #2563eb;
+  background-color: rgba(37, 99, 235, 0.08);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+  z-index: 20;
+}
+
+/* =================================================== */
+/* CẤU HÌNH IN CHUYÊN DỤNG VỚI CSS @media print */
+/* =================================================== */
+@media screen {
+  #print-container {
+    display: none;
+  }
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #app-ui {
+    display: none !important;
+  }
+  #print-container, #print-container * {
+    visibility: visible;
+  }
+  #print-container {
+    display: block !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  .print-page {
+    position: relative;
+    page-break-after: always;
+    break-after: page;
+    overflow: hidden;
+    margin: 0 auto;
+    box-shadow: none !important;
+  }
+  .print-page:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+  .print-page img.bg-template {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: contain;
+  }
+  .print-field {
+    position: absolute;
+    white-space: pre-wrap;
+    line-height: 1.2;
+  }
+  @page {
+    margin: 0;
+  }
+}
