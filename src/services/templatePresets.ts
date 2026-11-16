@@ -778,9 +778,9 @@ Ban vận động ấp Giồng Ông Đông trân trọng kính mời:`,
         type: 'text',
         visible: true,
         x: 535,
-        y: 146,
+        y: 138,
         width: 425,
-        fontSize: 10.5,
+        fontSize: 10,
         fontFamily: "'Times New Roman', Times, serif",
         fontWeight: '400',
         color: '#1e293b',
@@ -794,7 +794,7 @@ Ban vận động ấp Giồng Ông Đông trân trọng kính mời:`,
         type: 'text',
         visible: true,
         x: 535,
-        y: 275,
+        y: 285,
         fontSize: 14.5,
         fontFamily: "'Times New Roman', Times, serif",
         fontWeight: '700',
@@ -810,7 +810,7 @@ Ban vận động ấp Giồng Ông Đông trân trọng kính mời:`,
         type: 'text',
         visible: true,
         x: 535,
-        y: 310,
+        y: 318,
         fontSize: 13,
         fontFamily: "'Times New Roman', Times, serif",
         fontWeight: '500',
@@ -826,7 +826,7 @@ Ban vận động ấp Giồng Ông Đông trân trọng kính mời:`,
         type: 'text',
         visible: true,
         x: 535,
-        y: 345,
+        y: 350,
         fontSize: 12.5,
         fontFamily: "'Times New Roman', Times, serif",
         fontWeight: '500',
@@ -842,7 +842,7 @@ Ban vận động ấp Giồng Ông Đông trân trọng kính mời:`,
         type: 'text',
         visible: true,
         x: 535,
-        y: 380,
+        y: 382,
         fontSize: 12.5,
         fontFamily: "'Times New Roman', Times, serif",
         fontWeight: '500',
@@ -858,7 +858,7 @@ Ban vận động ấp Giồng Ông Đông trân trọng kính mời:`,
         type: 'text',
         visible: true,
         x: 535,
-        y: 415,
+        y: 414,
         fontSize: 12.5,
         fontFamily: "'Times New Roman', Times, serif",
         fontWeight: '500',
@@ -874,7 +874,7 @@ Ban vận động ấp Giồng Ông Đông trân trọng kính mời:`,
         type: 'text',
         visible: true,
         x: 535,
-        y: 460,
+        y: 450,
         width: 425,
         fontSize: 10.5,
         fontFamily: "'Times New Roman', Times, serif",
@@ -891,7 +891,7 @@ Ban vận động ấp Giồng Ông Đông trân trọng kính mời:`,
         type: 'text',
         visible: true,
         x: 530,
-        y: 508,
+        y: 505,
         width: 180,
         fontSize: 11,
         fontFamily: "'Times New Roman', Times, serif",
@@ -907,12 +907,29 @@ Ban vận động ấp Giồng Ông Đông trân trọng kính mời:`,
         type: 'text',
         visible: true,
         x: 770,
-        y: 500,
+        y: 495,
         width: 195,
         fontSize: 11,
         fontFamily: "'Times New Roman', Times, serif",
         fontWeight: '700',
         color: '#0f172a',
+        align: 'center'
+      },
+      {
+        id: 'ddk-seal',
+        key: 'seal_stamp',
+        label: 'Con Dấu Đỏ (Mộc Tròn)',
+        defaultValue: 'BAN VẬN ĐỘNG\nẤP GIỒNG ÔNG ĐÔNG',
+        type: 'seal',
+        visible: true,
+        x: 815,
+        y: 535,
+        width: 82,
+        height: 82,
+        fontSize: 9.5,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#dc2626',
         align: 'center'
       },
       {
@@ -1027,38 +1044,6 @@ Ban vận động ấp Giồng Ông Đông trân trọng kính mời:`,
       ctx.moveTo(centerX + 620, 132);
       ctx.lineTo(centerX + 840, 132);
       ctx.stroke();
-
-      // Các dòng chấm kẻ dẫn trường căn chuẩn tuyệt đối với baseline của các trường điền
-      ctx.setLineDash([4, 6]);
-      ctx.strokeStyle = '#cbd5e1';
-      ctx.lineWidth = 1.5;
-
-      const dotLines = [
-        { y: 588 }, // Baseline dòng Họ tên (Stage y = 294)
-        { y: 658 }, // Baseline dòng Địa chỉ (Stage y = 329)
-        { y: 728 }, // Baseline dòng Thời gian (Stage y = 364)
-        { y: 798 }, // Baseline dòng Địa điểm (Stage y = 399)
-        { y: 868 }  // Baseline dòng Nội dung (Stage y = 434)
-      ];
-
-      dotLines.forEach(({ y }) => {
-        ctx.beginPath();
-        ctx.moveTo(centerX + 230, y);
-        ctx.lineTo(canvas.width - 65, y);
-        ctx.stroke();
-      });
-      ctx.setLineDash([]);
-
-      // Dấu mộc đỏ mô phỏng chuẩn
-      ctx.strokeStyle = '#dc2626';
-      ctx.lineWidth = 4;
-      ctx.beginPath();
-      ctx.arc(centerX + 660, 1140, 52, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.fillStyle = '#dc2626';
-      ctx.font = 'bold 12px Arial, sans-serif';
-      ctx.fillText('BAN VẬN ĐỘNG', centerX + 660, 1132);
-      ctx.fillText('ẤP GIỒNG ÔNG ĐÔNG', centerX + 660, 1152);
 
       return canvas.toDataURL('image/png');
     }

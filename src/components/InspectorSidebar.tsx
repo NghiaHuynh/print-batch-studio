@@ -13,7 +13,8 @@ import {
   RotateCw,
   Eye,
   EyeOff,
-  Sparkles
+  Sparkles,
+  Stamp
 } from 'lucide-react';
 import { FieldConfig, TemplateInfo } from '../types';
 
@@ -232,16 +233,23 @@ export const InspectorSidebar: React.FC<InspectorSidebarProps> = ({
     <aside className="w-full lg:w-80 bg-white border-t lg:border-t-0 lg:border-l border-slate-200 p-4 flex flex-col shrink-0 z-20 overflow-y-auto max-h-72 lg:max-h-full select-none">
       {/* Header Inspector */}
       <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-        <div>
-          <h2 className="text-xs font-bold text-slate-900 truncate max-w-[170px]">{selectedField.label}</h2>
-          <span className="text-[10px] font-mono text-slate-400">key: {selectedField.key}</span>
+        <div className="flex-1 min-w-0 pr-2">
+          <input
+            type="text"
+            value={selectedField.label}
+            onChange={(e) => onUpdateField(selectedField.id, { label: e.target.value })}
+            className="text-xs font-bold text-slate-900 truncate w-full bg-transparent hover:bg-slate-50 focus:bg-white focus:ring-1 focus:ring-blue-500 rounded px-1 -ml-1 border-0"
+            title="Nhấp để đổi tên trường"
+          />
+          <span className="text-[10px] font-mono text-slate-400 block px-0.5">cột: {selectedField.key}</span>
         </div>
-        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0 ${
           selectedField.type === 'qr' ? 'bg-indigo-100 text-indigo-700' :
           selectedField.type === 'barcode' ? 'bg-purple-100 text-purple-700' :
+          selectedField.type === 'seal' ? 'bg-rose-100 text-rose-700' :
           'bg-blue-100 text-blue-700'
         }`}>
-          {selectedField.type}
+          {selectedField.type === 'seal' ? 'Mộc tròn' : selectedField.type}
         </span>
       </div>
 
@@ -585,6 +593,116 @@ export const InspectorSidebar: React.FC<InspectorSidebarProps> = ({
               <option value="UPC">UPC (Chuẩn bán lẻ Bắc Mỹ)</option>
             </select>
           </div>
+        )}
+
+        {/* Cấu hình cho CON DẤU ĐỎ (SEAL) */}
+        {selectedField.type === 'seal' && (
+          <>
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-xs font-semibold text-slate-700">Nội dung con dấu</label>
+                <span className="text-[10px] text-rose-600 font-medium">Mộc tròn đỏ</span>
+              </div>
+              <textarea
+                rows={3}
+                value={selectedField.defaultValue ?? ''}
+                placeholder="Nội dung trong con dấu..."
+                onChange={(e) => onUpdateField(selectedField.id, { defaultValue: e.target.value })}
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-800 focus:outline-none focus:border-rose-600 font-sans leading-relaxed text-center uppercase"
+              />
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-xs font-semibold text-slate-700">Đường kính con dấu</label>
+                <span className="font-mono text-xs font-bold text-rose-700">
+                  {selectedField.width || 82}px
+                </span>
+              </div>
+              <input
+                type="range"
+                min={50}
+                max={150}
+                value={selectedField.width || 82}
+                onChange={(e) => {
+                  const sz = parseInt(e.target.value) || 82;
+                  onUpdateField(selectedField.id, { width: sz, height: sz });
+                }}
+                className="w-full accent-rose-600 cursor-pointer"
+              />
+            </div>
+
+            {/* Cỡ chữ trong con dấu */}
+            <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-800">Cỡ chữ trong dấu</span>
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="number"
+                    min={7}
+                    max={24}
+                    step={0.5}
+                    value={selectedField.fontSize}
+                    onChange={(e) => onUpdateField(selectedField.id, { fontSize: parseFloat(e.target.value) || 9.5 })}
+                    className="w-14 text-center bg-white border border-slate-300 rounded px-1.5 py-0.5 text-xs font-mono font-bold text-rose-700 focus:outline-none focus:border-rose-500"
+                  />
+                  <span className="text-[11px] font-semibold text-slate-400">px</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-4 gap-1">
+                <button
+                  type="button"
+                  onClick={() => onUpdateField(selectedField.id, { fontSize: Math.max(7, Number((selectedField.fontSize - 1).toFixed(1))) })}
+                  className="py-1 px-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded text-[11px] font-semibold transition"
+                >
+                  -1px
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onUpdateField(selectedField.id, { fontSize: Math.max(7, Number((selectedField.fontSize - 0.5).toFixed(1))) })}
+                  className="py-1 px-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded text-[11px] font-semibold transition"
+                >
+                  -0.5
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onUpdateField(selectedField.id, { fontSize: Math.min(24, Number((selectedField.fontSize + 0.5).toFixed(1))) })}
+                  className="py-1 px-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded text-[11px] font-semibold transition"
+                >
+                  +0.5
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onUpdateField(selectedField.id, { fontSize: Math.min(24, Number((selectedField.fontSize + 1).toFixed(1))) })}
+                  className="py-1 px-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded text-[11px] font-semibold transition"
+                >
+                  +1px
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1.5">
+                <Palette className="w-3.5 h-3.5 text-slate-400" />
+                <span>Màu mực con dấu</span>
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={selectedField.color || '#dc2626'}
+                  onChange={(e) => onUpdateField(selectedField.id, { color: e.target.value })}
+                  className="w-9 h-8 rounded-lg cursor-pointer border border-slate-200 p-0.5 bg-white"
+                />
+                <input
+                  type="text"
+                  value={selectedField.color || '#dc2626'}
+                  onChange={(e) => onUpdateField(selectedField.id, { color: e.target.value })}
+                  className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-mono uppercase text-slate-700"
+                />
+              </div>
+            </div>
+          </>
         )}
       </div>
     </aside>

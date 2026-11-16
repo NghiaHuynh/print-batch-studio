@@ -316,19 +316,23 @@ export const App: React.FC = () => {
   // Thêm trường mới từ sidebar
   const handleAddField = (type: FieldType, label: string, key: string) => {
     pushHistory();
+    const isSeal = type === 'seal';
     const newField: FieldConfig = {
       id: `field_${Date.now()}`,
       key,
       label,
+      defaultValue: isSeal ? label : undefined,
       type,
       visible: true,
       x: Math.round(stageWidth / 2) - 80,
       y: Math.round(stageHeight / 2) - 20,
-      fontSize: 18,
-      fontFamily: "'Inter', sans-serif",
-      fontWeight: '600',
-      color: '#0f172a',
-      align: 'left',
+      width: isSeal ? 82 : undefined,
+      height: isSeal ? 82 : undefined,
+      fontSize: isSeal ? 10 : 18,
+      fontFamily: isSeal ? "'Times New Roman', Times, serif" : "'Inter', sans-serif",
+      fontWeight: isSeal ? '700' : '600',
+      color: isSeal ? '#dc2626' : '#0f172a',
+      align: isSeal ? 'center' : 'left',
       qrSize: 100,
       barcodeFormat: 'CODE128'
     };
@@ -340,19 +344,23 @@ export const App: React.FC = () => {
   // Thêm trường tại tọa độ chính xác (khi double-click trên phôi)
   const handleAddFieldAtPosition = (type: FieldType, label: string, key: string, x: number, y: number) => {
     pushHistory();
+    const isSeal = type === 'seal';
     const newField: FieldConfig = {
       id: `field_${Date.now()}`,
       key,
       label,
+      defaultValue: isSeal ? label : undefined,
       type,
       visible: true,
       x,
       y,
-      fontSize: 18,
-      fontFamily: "'Inter', sans-serif",
-      fontWeight: '600',
-      color: '#0f172a',
-      align: 'left',
+      width: isSeal ? 82 : undefined,
+      height: isSeal ? 82 : undefined,
+      fontSize: isSeal ? 10 : 18,
+      fontFamily: isSeal ? "'Times New Roman', Times, serif" : "'Inter', sans-serif",
+      fontWeight: isSeal ? '700' : '600',
+      color: isSeal ? '#dc2626' : '#0f172a',
+      align: isSeal ? 'center' : 'left',
       qrSize: 100,
       barcodeFormat: 'CODE128'
     };

@@ -11,7 +11,8 @@ import {
   Type, 
   Layers, 
   Info,
-  Sparkles
+  Sparkles,
+  Stamp
 } from 'lucide-react';
 import { FieldConfig, FieldType, RecordData } from '../types';
 
@@ -99,10 +100,12 @@ export const FieldsSidebar: React.FC<FieldsSidebarProps> = ({
                   <div className={`p-1.5 rounded-lg shrink-0 ${
                     field.type === 'qr' ? 'bg-indigo-100 text-indigo-700' :
                     field.type === 'barcode' ? 'bg-purple-100 text-purple-700' :
+                    field.type === 'seal' ? 'bg-rose-100 text-rose-700' :
                     'bg-blue-100 text-blue-700'
                   }`}>
                     {field.type === 'qr' ? <QrCode className="w-3.5 h-3.5" /> :
                      field.type === 'barcode' ? <Barcode className="w-3.5 h-3.5" /> :
+                     field.type === 'seal' ? <Stamp className="w-3.5 h-3.5" /> :
                      <Type className="w-3.5 h-3.5" />}
                   </div>
                   <div className="min-w-0 truncate">
@@ -199,21 +202,21 @@ export const FieldsSidebar: React.FC<FieldsSidebarProps> = ({
             <form onSubmit={handleCreateField} className="space-y-3.5">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">Loại trường</label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-4 gap-1.5">
                   <button
                     type="button"
                     onClick={() => setNewFieldType('text')}
-                    className={`py-2 px-2.5 rounded-lg text-xs font-semibold flex flex-col items-center gap-1 border transition ${
+                    className={`py-2 px-1.5 rounded-lg text-xs font-semibold flex flex-col items-center gap-1 border transition ${
                       newFieldType === 'text' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-600'
                     }`}
                   >
                     <Type className="w-4 h-4" />
-                    <span>Chữ / Text</span>
+                    <span>Chữ</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setNewFieldType('qr')}
-                    className={`py-2 px-2.5 rounded-lg text-xs font-semibold flex flex-col items-center gap-1 border transition ${
+                    className={`py-2 px-1.5 rounded-lg text-xs font-semibold flex flex-col items-center gap-1 border transition ${
                       newFieldType === 'qr' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-600'
                     }`}
                   >
@@ -223,12 +226,22 @@ export const FieldsSidebar: React.FC<FieldsSidebarProps> = ({
                   <button
                     type="button"
                     onClick={() => setNewFieldType('barcode')}
-                    className={`py-2 px-2.5 rounded-lg text-xs font-semibold flex flex-col items-center gap-1 border transition ${
+                    className={`py-2 px-1.5 rounded-lg text-xs font-semibold flex flex-col items-center gap-1 border transition ${
                       newFieldType === 'barcode' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-600'
                     }`}
                   >
                     <Barcode className="w-4 h-4" />
-                    <span>Mã Vạch</span>
+                    <span>Vạch</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setNewFieldType('seal')}
+                    className={`py-2 px-1.5 rounded-lg text-xs font-semibold flex flex-col items-center gap-1 border transition ${
+                      newFieldType === 'seal' ? 'border-rose-600 bg-rose-50 text-rose-700' : 'border-slate-200 text-slate-600'
+                    }`}
+                  >
+                    <Stamp className="w-4 h-4" />
+                    <span>Mộc Đỏ</span>
                   </button>
                 </div>
               </div>

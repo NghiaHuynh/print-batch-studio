@@ -130,6 +130,40 @@ export const PrintContainer: React.FC<PrintContainerProps> = ({
                     </div>
                   </div>
                 )}
+
+                {field.type === 'seal' && (
+                  <div
+                    className="rounded-full flex flex-col items-center justify-center text-center p-1 border-2"
+                    style={{
+                      width: `${field.width || 82}px`,
+                      height: `${field.height || field.width || 82}px`,
+                      borderColor: field.color || '#dc2626',
+                      transform: 'rotate(-5deg)',
+                      backgroundColor: 'rgba(239, 68, 68, 0.04)',
+                      boxShadow: 'inset 0 0 0 1px rgba(220, 38, 38, 0.35)'
+                    }}
+                  >
+                    <div
+                      className="w-full h-full rounded-full border border-dashed flex flex-col items-center justify-center p-1"
+                      style={{ borderColor: field.color || '#dc2626' }}
+                    >
+                      <span
+                        style={{
+                          fontSize: `${field.fontSize || 9.5}px`,
+                          fontFamily: field.fontFamily || "'Times New Roman', Times, serif",
+                          fontWeight: field.fontWeight || '700',
+                          color: field.color || '#dc2626',
+                          lineHeight: 1.15,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.02em',
+                          whiteSpace: 'pre-line'
+                        }}
+                      >
+                        {displayText}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}

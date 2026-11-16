@@ -1,4 +1,4 @@
-export type FieldType = 'text' | 'qr' | 'barcode';
+export type FieldType = 'text' | 'qr' | 'barcode' | 'seal';
 
 export interface FieldConfig {
   id: string;
