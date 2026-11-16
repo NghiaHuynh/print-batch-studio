@@ -10,7 +10,8 @@ import {
   Undo2, 
   Redo2, 
   Sparkles,
-  ChevronDown
+  ChevronDown,
+  Scale
 } from 'lucide-react';
 import { PRESET_TEMPLATES } from '../services/templatePresets';
 import { PresetTemplate } from '../types';
@@ -24,6 +25,7 @@ interface HeaderProps {
   onUndo: () => void;
   onRedo: () => void;
   onOpenDataModal: () => void;
+  onOpenLegalModal: () => void;
   onUploadTemplate: (file: File) => void;
   onSelectPreset: (preset: PresetTemplate) => void;
   onSaveProject: () => void;
@@ -41,6 +43,7 @@ export const Header: React.FC<HeaderProps> = ({
   onUndo,
   onRedo,
   onOpenDataModal,
+  onOpenLegalModal,
   onUploadTemplate,
   onSelectPreset,
   onSaveProject,
@@ -104,44 +107,86 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Khối giữa: Mẫu có sẵn (Preset Templates Dropdown) */}
-      <div className="relative">
+      {/* Khối giữa: Chuẩn Thể Thức & Mẫu có sẵn */}
+      <div className="flex items-center gap-2">
+        {/* Nút Chuẩn Hóa Thể Thức Pháp Quy */}
         <button
-          onClick={() => setShowPresetsMenu(!showPresetsMenu)}
-          className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold border border-slate-200 transition"
+          onClick={onOpenLegalModal}
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-indigo-50 to-blue-50 hover:from-indigo-100 hover:to-blue-100 text-indigo-700 rounded-lg text-xs font-bold border border-indigo-200/80 shadow-2xs transition"
+          title="Chuẩn hóa theo Nghị định 30, Thông tư 68 Quân đội, Hướng dẫn 05 Đảng"
         >
-          <LayoutTemplate className="w-3.5 h-3.5 text-blue-600" />
-          <span className="hidden sm:inline">Mẫu thiết kế sẵn</span>
-          <span className="sm:hidden">Mẫu mẫu</span>
-          <ChevronDown className="w-3 h-3 text-slate-400" />
+          <Scale className="w-3.5 h-3.5 text-indigo-600" />
+          <span className="hidden sm:inline">Chuẩn Thể Thức (NĐ 30, TT 68, HD 05)</span>
+          <span className="sm:hidden">Chuẩn Thể Thức</span>
         </button>
 
-        {showPresetsMenu && (
-          <>
-            <div className="fixed inset-0 z-40" onClick={() => setShowPresetsMenu(false)}></div>
-            <div className="absolute left-0 sm:left-auto sm:right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
-              <div className="px-3 py-1.5 border-b border-slate-100">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Chọn mẫu chuyên nghiệp</span>
-              </div>
-              {PRESET_TEMPLATES.map((preset) => (
-                <button
-                  key={preset.id}
-                  onClick={() => {
-                    onSelectPreset(preset);
-                    setShowPresetsMenu(false);
-                  }}
-                  className="w-full text-left px-3.5 py-2 hover:bg-blue-50/70 text-slate-700 hover:text-blue-700 transition flex flex-col gap-0.5 border-b border-slate-50 last:border-0"
-                >
-                  <span className="text-xs font-bold flex items-center gap-1.5">
-                    <Sparkles className="w-3 h-3 text-amber-500" />
-                    {preset.name}
+        {/* Dropdown Mẫu thiết kế sẵn */}
+        <div className="relative">
+          <button
+            onClick={() => setShowPresetsMenu(!showPresetsMenu)}
+            className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold border border-slate-200 transition"
+          >
+            <LayoutTemplate className="w-3.5 h-3.5 text-blue-600" />
+            <span className="hidden sm:inline">Mẫu có sẵn</span>
+            <span className="sm:hidden">Mẫu</span>
+            <ChevronDown className="w-3 h-3 text-slate-400" />
+          </button>
+
+          {showPresetsMenu && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setShowPresetsMenu(false)}></div>
+              <div className="absolute left-0 sm:left-auto sm:right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100 max-h-[85vh] overflow-y-auto">
+                {/* Nhóm 1: Văn bản Pháp quy */}
+                <div className="px-3 py-1.5 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700 flex items-center gap-1">
+                    <Scale className="w-3 h-3" />
+                    Chuẩn Thể Thức Pháp Quy
                   </span>
-                  <span className="text-[11px] text-slate-500 line-clamp-1">{preset.description}</span>
-                </button>
-              ))}
-            </div>
-          </>
-        )}
+                  <span className="text-[9px] bg-indigo-100 text-indigo-700 font-bold px-1.5 py-0.2 rounded">NĐ 30 / TT 68 / HD 05</span>
+                </div>
+                {PRESET_TEMPLATES.filter(p => ['invitation-nd30', 'invitation-tt68-bqp', 'invitation-hd05-dang', 'invitation-daidoanket'].includes(p.id)).map((preset) => (
+                  <button
+                    key={preset.id}
+                    onClick={() => {
+                      onSelectPreset(preset);
+                      setShowPresetsMenu(false);
+                    }}
+                    className="w-full text-left px-3.5 py-2 hover:bg-indigo-50/70 text-slate-700 hover:text-indigo-700 transition flex flex-col gap-0.5 border-b border-slate-50 last:border-0"
+                  >
+                    <span className="text-xs font-bold flex items-center gap-1.5">
+                      <Sparkles className="w-3 h-3 text-indigo-500" />
+                      {preset.name}
+                    </span>
+                    <span className="text-[11px] text-slate-500 line-clamp-1">{preset.description}</span>
+                  </button>
+                ))}
+
+                {/* Nhóm 2: Sự kiện & Thương mại */}
+                <div className="px-3 py-1.5 bg-slate-50 border-b border-slate-100 mt-1">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                    Biểu Mẫu Sự Kiện & Doanh Nghiệp
+                  </span>
+                </div>
+                {PRESET_TEMPLATES.filter(p => !['invitation-nd30', 'invitation-tt68-bqp', 'invitation-hd05-dang', 'invitation-daidoanket'].includes(p.id)).map((preset) => (
+                  <button
+                    key={preset.id}
+                    onClick={() => {
+                      onSelectPreset(preset);
+                      setShowPresetsMenu(false);
+                    }}
+                    className="w-full text-left px-3.5 py-2 hover:bg-blue-50/70 text-slate-700 hover:text-blue-700 transition flex flex-col gap-0.5 border-b border-slate-50 last:border-0"
+                  >
+                    <span className="text-xs font-bold flex items-center gap-1.5">
+                      <Sparkles className="w-3 h-3 text-amber-500" />
+                      {preset.name}
+                    </span>
+                    <span className="text-[11px] text-slate-500 line-clamp-1">{preset.description}</span>
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Khối bên phải: Các nút hành động chính */}

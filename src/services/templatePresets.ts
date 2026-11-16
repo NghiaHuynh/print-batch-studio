@@ -1047,6 +1047,1051 @@ Ban vận động ấp Giồng Ông Đông trân trọng kính mời:`,
 
       return canvas.toDataURL('image/png');
     }
+  },
+  {
+    id: 'invitation-nd30',
+    name: 'Giấy Mời Chuẩn Nghị Định 30/2020/NĐ-CP (Cơ Quan Nhà Nước)',
+    category: 'invitation',
+    description: 'Chuẩn thể thức văn bản hành chính nhà nước theo Nghị định 30/2020/NĐ-CP. Đúng tỷ lệ Quốc hiệu, Tiêu ngữ, số hiệu GM-UBND, trích yếu, chữ ký Chủ tịch và mộc đỏ.',
+    width: 840,
+    height: 580,
+    fields: [
+      {
+        id: 'nd30-agency-sup',
+        key: 'agency_sup',
+        label: 'Cơ Quan Cấp Trên',
+        defaultValue: 'ỦY BAN NHÂN DÂN HUYỆN NHƠN TRẠCH',
+        type: 'text',
+        visible: true,
+        x: 45,
+        y: 36,
+        width: 280,
+        fontSize: 11,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '400',
+        color: '#0f172a',
+        align: 'center'
+      },
+      {
+        id: 'nd30-agency',
+        key: 'issuing_agency',
+        label: 'Cơ Quan Ban Hành',
+        defaultValue: 'ỦY BAN NHÂN DÂN XÃ ĐẠI PHƯỚC',
+        type: 'text',
+        visible: true,
+        x: 45,
+        y: 56,
+        width: 280,
+        fontSize: 12,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#0f172a',
+        align: 'center'
+      },
+      {
+        id: 'nd30-doc-no',
+        key: 'letter_no',
+        label: 'Số Ký Hiệu Văn Bản',
+        defaultValue: '01/GM-UBND',
+        type: 'text',
+        visible: true,
+        x: 45,
+        y: 88,
+        width: 280,
+        fontSize: 12,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '600',
+        color: '#0f172a',
+        align: 'center',
+        prefix: 'Số: '
+      },
+      {
+        id: 'nd30-motto-top',
+        key: 'national_motto_top',
+        label: 'Quốc Hiệu (NĐ 30)',
+        defaultValue: 'CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM',
+        type: 'text',
+        visible: true,
+        x: 490,
+        y: 36,
+        width: 310,
+        fontSize: 12,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#0f172a',
+        align: 'center'
+      },
+      {
+        id: 'nd30-motto-bottom',
+        key: 'national_motto_bottom',
+        label: 'Tiêu Ngữ (NĐ 30)',
+        defaultValue: 'Độc lập - Tự do - Hạnh phúc',
+        type: 'text',
+        visible: true,
+        x: 490,
+        y: 56,
+        width: 310,
+        fontSize: 13,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#0f172a',
+        align: 'center'
+      },
+      {
+        id: 'nd30-date',
+        key: 'date',
+        label: 'Địa Danh & Ngày Tháng',
+        defaultValue: 'Đại Phước, ngày 10 tháng 11 năm 2026',
+        type: 'text',
+        visible: true,
+        x: 490,
+        y: 88,
+        width: 310,
+        fontSize: 13,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontStyle: 'italic',
+        fontWeight: '400',
+        color: '#0f172a',
+        align: 'center'
+      },
+      {
+        id: 'nd30-title',
+        key: 'invitation_heading',
+        label: 'Tên Loại Văn Bản',
+        defaultValue: 'GIẤY MỜI',
+        type: 'text',
+        visible: true,
+        x: 45,
+        y: 135,
+        width: 750,
+        fontSize: 16,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#b91c1c',
+        align: 'center'
+      },
+      {
+        id: 'nd30-intro',
+        key: 'invitation_intro',
+        label: 'Trích Yếu Nội Dung',
+        defaultValue: 'Về việc dự Phiên họp thường kỳ UBND xã tháng 11 năm 2026',
+        type: 'text',
+        visible: true,
+        x: 45,
+        y: 165,
+        width: 750,
+        fontSize: 13,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#0f172a',
+        align: 'center'
+      },
+      {
+        id: 'nd30-name',
+        key: 'name',
+        label: 'Họ và Tên Khách Mời',
+        defaultValue: 'Nguyễn Thanh Quang',
+        type: 'text',
+        visible: true,
+        x: 75,
+        y: 205,
+        width: 690,
+        fontSize: 13.5,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#0f172a',
+        align: 'left',
+        prefix: 'Kính gửi: Ông (bà) '
+      },
+      {
+        id: 'nd30-title-field',
+        key: 'title',
+        label: 'Chức Vụ / Đơn Vị Khách Mời',
+        defaultValue: 'Đại biểu HĐND xã Đại Phước',
+        type: 'text',
+        visible: true,
+        x: 75,
+        y: 232,
+        width: 690,
+        fontSize: 13,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '400',
+        color: '#334155',
+        align: 'left',
+        prefix: 'Chức vụ / Đơn vị: '
+      },
+      {
+        id: 'nd30-content',
+        key: 'meeting_content',
+        label: 'Đoạn Văn Nội Dung Mời',
+        defaultValue: 'Ủy ban nhân dân xã Đại Phước trân trọng kính mời Ông (bà) đến tham dự Phiên họp thường kỳ nhằm đánh giá tình hình kinh tế - xã hội, quốc phòng - an ninh tháng 10 và triển khai phương hướng, nhiệm vụ công tác tháng 11 năm 2026.',
+        type: 'text',
+        visible: true,
+        x: 75,
+        y: 260,
+        width: 690,
+        fontSize: 13,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '400',
+        color: '#0f172a',
+        align: 'left'
+      },
+      {
+        id: 'nd30-time',
+        key: 'time',
+        label: 'Thời Gian Tổ Chức',
+        defaultValue: 'Vào lúc 08 giờ 00 phút, ngày 15 tháng 11 năm 2026 (Thứ Hai).',
+        type: 'text',
+        visible: true,
+        x: 75,
+        y: 326,
+        width: 690,
+        fontSize: 13,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '500',
+        color: '#0f172a',
+        align: 'left',
+        prefix: '1. Thời gian: '
+      },
+      {
+        id: 'nd30-location',
+        key: 'location',
+        label: 'Địa Điểm Tổ Chức',
+        defaultValue: 'Hội trường số 1, Trụ sở UBND xã Đại Phước.',
+        type: 'text',
+        visible: true,
+        x: 75,
+        y: 354,
+        width: 690,
+        fontSize: 13,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '500',
+        color: '#0f172a',
+        align: 'left',
+        prefix: '2. Địa điểm: '
+      },
+      {
+        id: 'nd30-chair',
+        key: 'chair',
+        label: 'Chủ Trì Cuộc Họp',
+        defaultValue: 'Chủ tịch UBND xã Đại Phước.',
+        type: 'text',
+        visible: true,
+        x: 75,
+        y: 382,
+        width: 690,
+        fontSize: 13,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '500',
+        color: '#0f172a',
+        align: 'left',
+        prefix: '3. Chủ trì: '
+      },
+      {
+        id: 'nd30-recipient',
+        key: 'recipients',
+        label: 'Nơi Nhận (NĐ 30)',
+        defaultValue: 'Nơi nhận:\n- Như kính gửi;\n- Thường trực HĐND xã (b/c);\n- Chủ tịch, các PCT UBND xã;\n- Lưu: VT.',
+        type: 'text',
+        visible: true,
+        x: 50,
+        y: 435,
+        width: 220,
+        fontSize: 10.5,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '400',
+        color: '#334155',
+        align: 'left'
+      },
+      {
+        id: 'nd30-signer-title',
+        key: 'signer_title',
+        label: 'Chức Vụ Người Ký',
+        defaultValue: 'TM. ỦY BAN NHÂN DÂN\nCHỦ TỊCH',
+        type: 'text',
+        visible: true,
+        x: 520,
+        y: 430,
+        width: 250,
+        fontSize: 13,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#0f172a',
+        align: 'center'
+      },
+      {
+        id: 'nd30-seal',
+        key: 'seal',
+        label: 'Mộc Đỏ Cơ Quan Nhà Nước',
+        defaultValue: 'ỦY BAN NHÂN DÂN / XÃ ĐẠI PHƯỚC',
+        type: 'seal',
+        visible: true,
+        x: 570,
+        y: 462,
+        qrSize: 105,
+        fontSize: 10.5,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#dc2626',
+        align: 'center'
+      },
+      {
+        id: 'nd30-signer-name',
+        key: 'signer_name',
+        label: 'Họ Tên Người Ký',
+        defaultValue: 'Nguyễn Văn An',
+        type: 'text',
+        visible: true,
+        x: 520,
+        y: 535,
+        width: 250,
+        fontSize: 13,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#0f172a',
+        align: 'center'
+      },
+      {
+        id: 'nd30-qr',
+        key: 'qr_code',
+        label: 'Mã QR Check-in',
+        defaultValue: 'CHECKIN-ND30-01-NGUYEN-THANH-QUANG',
+        type: 'qr',
+        visible: true,
+        x: 740,
+        y: 195,
+        qrSize: 65,
+        fontSize: 11,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '400',
+        color: '#000000',
+        align: 'center'
+      }
+    ],
+    defaultRecords: [
+      { name: 'Nguyễn Thanh Quang', title: 'Đại biểu HĐND xã Đại Phước', letter_no: '01/GM-UBND', date: 'Đại Phước, ngày 10 tháng 11 năm 2026', qr_code: 'GM-01-NGUYEN-THANH-QUANG' },
+      { name: 'Lê Hoàng Minh', title: 'Chủ tịch Ủy ban MTTQ xã', letter_no: '02/GM-UBND', date: 'Đại Phước, ngày 10 tháng 11 năm 2026', qr_code: 'GM-02-LE-HOANG-MINH' },
+      { name: 'Trần Thị Thu Trang', title: 'Bí thư Đoàn Thanh niên xã', letter_no: '03/GM-UBND', date: 'Đại Phước, ngày 10 tháng 11 năm 2026', qr_code: 'GM-03-TRAN-THI-THU-TRANG' }
+    ],
+    generateBackground: () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1680;
+      canvas.height = 1160;
+      const ctx = canvas.getContext('2d')!;
+
+      // Nền trắng tinh khiết chuẩn văn thư
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Đường viền đơn trang nhã chuẩn văn bản hành chính
+      ctx.strokeStyle = '#e2e8f0';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(30, 30, canvas.width - 60, canvas.height - 60);
+
+      // Đường kẻ nét liền dưới Tên cơ quan (1/3 đến 1/2 độ dài)
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(170, 160);
+      ctx.lineTo(410, 160);
+      ctx.stroke();
+
+      // Đường kẻ nét liền dưới Tiêu ngữ (bằng 100% độ dài dòng chữ)
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(1050, 160);
+      ctx.lineTo(1550, 160);
+      ctx.stroke();
+
+      // Đường gạch ngắn phân tách dưới Trích yếu
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(canvas.width / 2 - 90, 385);
+      ctx.lineTo(canvas.width / 2 + 90, 385);
+      ctx.stroke();
+
+      return canvas.toDataURL('image/png');
+    }
+  },
+  {
+    id: 'invitation-tt68-bqp',
+    name: 'Giấy Mời Chuẩn Thông Tư 68/2020/TT-BQP (Bộ Quốc Phòng)',
+    category: 'invitation',
+    description: 'Chuẩn thể thức văn bản quân sự theo Thông tư 68/2020/TT-BQP của Bộ Quốc phòng. Đúng số hiệu quân sự GM-BCH, chức danh Chỉ huy trưởng, cấp bậc quân hàm và mộc đỏ BCHQS.',
+    width: 840,
+    height: 580,
+    fields: [
+      {
+        id: 'tt68-agency-sup',
+        key: 'agency_sup',
+        label: 'Bộ CHQS Cấp Trên',
+        defaultValue: 'BỘ CHỈ HUY QUÂN SỰ TỈNH ĐỒNG NAI',
+        type: 'text',
+        visible: true,
+        x: 45,
+        y: 36,
+        width: 300,
+        fontSize: 11,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '400',
+        color: '#0f172a',
+        align: 'center'
+      },
+      {
+        id: 'tt68-agency',
+        key: 'issuing_agency',
+        label: 'Ban Chỉ Huy Quân Sự',
+        defaultValue: 'BAN CHỈ HUY QUÂN SỰ HUYỆN NHƠN TRẠCH',
+        type: 'text',
+        visible: true,
+        x: 45,
+        y: 56,
+        width: 300,
+        fontSize: 12,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#0f172a',
+        align: 'center'
+      },
+      {
+        id: 'tt68-doc-no',
+        key: 'letter_no',
+        label: 'Số Ký Hiệu Quân Sự',
+        defaultValue: '01/GM-BCH',
+        type: 'text',
+        visible: true,
+        x: 45,
+        y: 88,
+        width: 300,
+        fontSize: 12,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '600',
+        color: '#0f172a',
+        align: 'center',
+        prefix: 'Số: '
+      },
+      {
+        id: 'tt68-motto-top',
+        key: 'national_motto_top',
+        label: 'Quốc Hiệu Quân Sự',
+        defaultValue: 'CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM',
+        type: 'text',
+        visible: true,
+        x: 490,
+        y: 36,
+        width: 310,
+        fontSize: 12,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#0f172a',
+        align: 'center'
+      },
+      {
+        id: 'tt68-motto-bottom',
+        key: 'national_motto_bottom',
+        label: 'Tiêu Ngữ',
+        defaultValue: 'Độc lập - Tự do - Hạnh phúc',
+        type: 'text',
+        visible: true,
+        x: 490,
+        y: 56,
+        width: 310,
+        fontSize: 13,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#0f172a',
+        align: 'center'
+      },
+      {
+        id: 'tt68-date',
+        key: 'date',
+        label: 'Địa Danh & Ngày Ban Hành',
+        defaultValue: 'Nhơn Trạch, ngày 10 tháng 11 năm 2026',
+        type: 'text',
+        visible: true,
+        x: 490,
+        y: 88,
+        width: 310,
+        fontSize: 13,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontStyle: 'italic',
+        fontWeight: '400',
+        color: '#0f172a',
+        align: 'center'
+      },
+      {
+        id: 'tt68-title',
+        key: 'invitation_heading',
+        label: 'Tiêu Đề Văn Bản Quân Sự',
+        defaultValue: 'GIẤY MỜI',
+        type: 'text',
+        visible: true,
+        x: 45,
+        y: 135,
+        width: 750,
+        fontSize: 16,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#15803d',
+        align: 'center'
+      },
+      {
+        id: 'tt68-intro',
+        key: 'invitation_intro',
+        label: 'Trích Yếu Quân Sự',
+        defaultValue: 'Về việc dự Hội nghị Quân chính và Hiệp đồng công tác tuyển quân năm 2026',
+        type: 'text',
+        visible: true,
+        x: 45,
+        y: 165,
+        width: 750,
+        fontSize: 13,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#0f172a',
+        align: 'center'
+      },
+      {
+        id: 'tt68-name',
+        key: 'name',
+        label: 'Đồng Chí Khách Mời',
+        defaultValue: 'Đồng chí Chỉ huy trưởng Ban CHQS xã Đại Phước',
+        type: 'text',
+        visible: true,
+        x: 75,
+        y: 205,
+        width: 690,
+        fontSize: 13.5,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#0f172a',
+        align: 'left',
+        prefix: 'Kính gửi: '
+      },
+      {
+        id: 'tt68-content',
+        key: 'meeting_content',
+        label: 'Nội Dung Mời Quân Sự',
+        defaultValue: 'Ban Chỉ huy Quân sự huyện Nhơn Trạch trân trọng kính mời Đồng chí đến tham dự Hội nghị Quân chính nhằm quán triệt nhiệm vụ sẵn sàng chiến đấu, hiệp đồng công tác khám tuyển nghĩa vụ quân sự và tuyển chọn công dân nhập ngũ năm 2026.',
+        type: 'text',
+        visible: true,
+        x: 75,
+        y: 242,
+        width: 690,
+        fontSize: 13,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '400',
+        color: '#0f172a',
+        align: 'left'
+      },
+      {
+        id: 'tt68-time',
+        key: 'time',
+        label: 'Thời Gian Hội Nghị',
+        defaultValue: 'Vào lúc 07 giờ 30 phút, ngày 18 tháng 11 năm 2026 (Thứ Tư).',
+        type: 'text',
+        visible: true,
+        x: 75,
+        y: 312,
+        width: 690,
+        fontSize: 13,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '500',
+        color: '#0f172a',
+        align: 'left',
+        prefix: '1. Thời gian: '
+      },
+      {
+        id: 'tt68-location',
+        key: 'location',
+        label: 'Địa Điểm Hội Nghị',
+        defaultValue: 'Hội trường Ban Chỉ huy Quân sự huyện Nhơn Trạch.',
+        type: 'text',
+        visible: true,
+        x: 75,
+        y: 340,
+        width: 690,
+        fontSize: 13,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '500',
+        color: '#0f172a',
+        align: 'left',
+        prefix: '2. Địa điểm: '
+      },
+      {
+        id: 'tt68-uniform',
+        key: 'uniform',
+        label: 'Quy Định Trang Phục',
+        defaultValue: 'Sĩ quan, QNCN mang lễ phục K08 hè - thu; lực lượng DQTV mang trang phục dân quân tự vệ đúng điều lệnh.',
+        type: 'text',
+        visible: true,
+        x: 75,
+        y: 368,
+        width: 690,
+        fontSize: 12.5,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontStyle: 'italic',
+        fontWeight: '500',
+        color: '#15803d',
+        align: 'left',
+        prefix: '3. Trang phục: '
+      },
+      {
+        id: 'tt68-recipient',
+        key: 'recipients',
+        label: 'Nơi Nhận Quân Sự',
+        defaultValue: 'Nơi nhận:\n- Thủ trưởng Bộ CHQS tỉnh (để b/c);\n- Như kính gửi;\n- Đảng ủy, Ban CHQS huyện;\n- Lưu: VT, Ban TM.',
+        type: 'text',
+        visible: true,
+        x: 50,
+        y: 435,
+        width: 230,
+        fontSize: 10.5,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '400',
+        color: '#334155',
+        align: 'left'
+      },
+      {
+        id: 'tt68-signer-title',
+        key: 'signer_title',
+        label: 'Chức Vụ Chỉ Huy',
+        defaultValue: 'CHỈ HUY TRƯỞNG',
+        type: 'text',
+        visible: true,
+        x: 520,
+        y: 430,
+        width: 250,
+        fontSize: 13,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#0f172a',
+        align: 'center'
+      },
+      {
+        id: 'tt68-seal',
+        key: 'seal',
+        label: 'Mộc Đỏ Ban CHQS',
+        defaultValue: 'BAN CHỈ HUY QUÂN SỰ / HUYỆN NHƠN TRẠCH',
+        type: 'seal',
+        visible: true,
+        x: 570,
+        y: 462,
+        qrSize: 105,
+        fontSize: 10,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#dc2626',
+        align: 'center'
+      },
+      {
+        id: 'tt68-signer-name',
+        key: 'signer_name',
+        label: 'Cấp Bậc & Họ Tên',
+        defaultValue: 'Thượng tá Trần Quốc Dũng',
+        type: 'text',
+        visible: true,
+        x: 520,
+        y: 535,
+        width: 250,
+        fontSize: 13,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#0f172a',
+        align: 'center'
+      },
+      {
+        id: 'tt68-qr',
+        key: 'qr_code',
+        label: 'Mã QR Quân Sự',
+        defaultValue: 'CHECKIN-BCH-01-DAI-PHUOC',
+        type: 'qr',
+        visible: true,
+        x: 740,
+        y: 195,
+        qrSize: 65,
+        fontSize: 11,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '400',
+        color: '#000000',
+        align: 'center'
+      }
+    ],
+    defaultRecords: [
+      { name: 'Đồng chí Chỉ huy trưởng Ban CHQS xã Đại Phước', letter_no: '01/GM-BCH', date: 'Nhơn Trạch, ngày 10 tháng 11 năm 2026', qr_code: 'GM-BCH-01' },
+      { name: 'Đồng chí Chỉ huy trưởng Ban CHQS xã Phú Đông', letter_no: '02/GM-BCH', date: 'Nhơn Trạch, ngày 10 tháng 11 năm 2026', qr_code: 'GM-BCH-02' },
+      { name: 'Đồng chí Chỉ huy trưởng Ban CHQS xã Phú Hữu', letter_no: '03/GM-BCH', date: 'Nhơn Trạch, ngày 10 tháng 11 năm 2026', qr_code: 'GM-BCH-03' }
+    ],
+    generateBackground: () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1680;
+      canvas.height = 1160;
+      const ctx = canvas.getContext('2d')!;
+
+      // Nền giấy trắng ngà chuẩn quân sự
+      ctx.fillStyle = '#fafaf9';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Khung viền chỉ xanh rêu quân đội
+      ctx.strokeStyle = '#15803d';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(30, 30, canvas.width - 60, canvas.height - 60);
+
+      // Đường kẻ nét liền dưới Ban CHQS (1/3 đến 1/2 độ dài)
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(170, 160);
+      ctx.lineTo(430, 160);
+      ctx.stroke();
+
+      // Đường kẻ nét liền dưới Tiêu ngữ
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(1050, 160);
+      ctx.lineTo(1550, 160);
+      ctx.stroke();
+
+      // Phân tách trích yếu
+      ctx.strokeStyle = '#15803d';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(canvas.width / 2 - 100, 385);
+      ctx.lineTo(canvas.width / 2 + 100, 385);
+      ctx.stroke();
+
+      return canvas.toDataURL('image/png');
+    }
+  },
+  {
+    id: 'invitation-hd05-dang',
+    name: 'Giấy Mời Chuẩn Hướng Dẫn 05-HD/VPTW (Văn Bản Của Đảng)',
+    category: 'invitation',
+    description: 'Chuẩn thể thức văn bản Đảng theo Hướng dẫn 05-HD/VPTW & 36-HD/VPTW. Đúng tiêu đề ĐẢNG CỘNG SẢN VIỆT NAM với 3 dấu sao * * *, số hiệu gạch nối GM/CB, chức danh T/M Chi bộ / Bí thư.',
+    width: 840,
+    height: 580,
+    fields: [
+      {
+        id: 'hd05-agency-sup',
+        key: 'agency_sup',
+        label: 'Cấp Ủy Cấp Trên',
+        defaultValue: 'HUYỆN ỦY NHƠN TRẠCH',
+        type: 'text',
+        visible: true,
+        x: 45,
+        y: 36,
+        width: 300,
+        fontSize: 11,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '400',
+        color: '#0f172a',
+        align: 'center'
+      },
+      {
+        id: 'hd05-agency',
+        key: 'issuing_agency',
+        label: 'Cơ Quan Đảng Ban Hành',
+        defaultValue: 'ĐẢNG ỦY XÃ ĐẠI PHƯỚC\nCHI BỘ ẤP GIỒNG ÔNG ĐÔNG',
+        type: 'text',
+        visible: true,
+        x: 45,
+        y: 54,
+        width: 300,
+        fontSize: 12,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#0f172a',
+        align: 'center'
+      },
+      {
+        id: 'hd05-doc-no',
+        key: 'letter_no',
+        label: 'Số Ký Hiệu Văn Bản Đảng',
+        defaultValue: '01-GM/CB',
+        type: 'text',
+        visible: true,
+        x: 45,
+        y: 94,
+        width: 300,
+        fontSize: 12,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '600',
+        color: '#0f172a',
+        align: 'center',
+        prefix: 'Số '
+      },
+      {
+        id: 'hd05-dang-title',
+        key: 'party_header',
+        label: 'Tiêu Đề Đảng (HD 05)',
+        defaultValue: 'ĐẢNG CỘNG SẢN VIỆT NAM\n* * *',
+        type: 'text',
+        visible: true,
+        x: 490,
+        y: 38,
+        width: 310,
+        fontSize: 13.5,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#b91c1c',
+        align: 'center'
+      },
+      {
+        id: 'hd05-date',
+        key: 'date',
+        label: 'Địa Danh & Ngày Ban Hành',
+        defaultValue: 'Giồng Ông Đông, ngày 10 tháng 11 năm 2026',
+        type: 'text',
+        visible: true,
+        x: 490,
+        y: 90,
+        width: 310,
+        fontSize: 13,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontStyle: 'italic',
+        fontWeight: '400',
+        color: '#0f172a',
+        align: 'center'
+      },
+      {
+        id: 'hd05-title',
+        key: 'invitation_heading',
+        label: 'Tên Loại Văn Bản Đảng',
+        defaultValue: 'GIẤY MỜI',
+        type: 'text',
+        visible: true,
+        x: 45,
+        y: 135,
+        width: 750,
+        fontSize: 16,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#b91c1c',
+        align: 'center'
+      },
+      {
+        id: 'hd05-intro',
+        key: 'invitation_intro',
+        label: 'Trích Yếu Văn Bản Đảng',
+        defaultValue: 'Về việc dự Đại hội Chi bộ ấp Giồng Ông Đông nhiệm kỳ 2025 – 2027',
+        type: 'text',
+        visible: true,
+        x: 45,
+        y: 165,
+        width: 750,
+        fontSize: 13,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#0f172a',
+        align: 'center'
+      },
+      {
+        id: 'hd05-name',
+        key: 'name',
+        label: 'Đồng Chí Đảng Viên',
+        defaultValue: 'Đồng chí Nguyễn Thanh Quang',
+        type: 'text',
+        visible: true,
+        x: 75,
+        y: 205,
+        width: 690,
+        fontSize: 13.5,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#0f172a',
+        align: 'left',
+        prefix: 'Kính gửi: '
+      },
+      {
+        id: 'hd05-content',
+        key: 'meeting_content',
+        label: 'Nội Dung Mời Dự Đại Hội',
+        defaultValue: 'Thực hiện Kế hoạch của Đảng ủy xã Đại Phước về việc chỉ đạo tổ chức Đại hội Chi bộ trực thuộc nhiệm kỳ 2025 - 2027; Chi ủy Chi bộ ấp Giồng Ông Đông trân trọng kính mời Đồng chí đến tham dự Đại hội Chi bộ nhằm tổng kết Nghị quyết nhiệm kỳ qua và quyết định phương hướng nhiệm kỳ tới.',
+        type: 'text',
+        visible: true,
+        x: 75,
+        y: 236,
+        width: 690,
+        fontSize: 13,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '400',
+        color: '#0f172a',
+        align: 'left'
+      },
+      {
+        id: 'hd05-time',
+        key: 'time',
+        label: 'Thời Gian Đại Hội',
+        defaultValue: 'Vào lúc 07 giờ 30 phút, ngày 20 tháng 11 năm 2026 (Thứ Sáu).',
+        type: 'text',
+        visible: true,
+        x: 75,
+        y: 312,
+        width: 690,
+        fontSize: 13,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '500',
+        color: '#0f172a',
+        align: 'left',
+        prefix: '1. Thời gian: '
+      },
+      {
+        id: 'hd05-location',
+        key: 'location',
+        label: 'Địa Điểm Đại Hội',
+        defaultValue: 'Nhà Văn hóa ấp Giồng Ông Đông, xã Đại Phước.',
+        type: 'text',
+        visible: true,
+        x: 75,
+        y: 340,
+        width: 690,
+        fontSize: 13,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '500',
+        color: '#0f172a',
+        align: 'left',
+        prefix: '2. Địa điểm: '
+      },
+      {
+        id: 'hd05-role',
+        key: 'delegate_role',
+        label: 'Tư Cách Đại Biểu',
+        defaultValue: 'Đảng viên chính thức dự Đại hội Chi bộ.',
+        type: 'text',
+        visible: true,
+        x: 75,
+        y: 368,
+        width: 690,
+        fontSize: 13,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontStyle: 'italic',
+        fontWeight: '500',
+        color: '#b91c1c',
+        align: 'left',
+        prefix: '3. Tư cách đại biểu: '
+      },
+      {
+        id: 'hd05-recipient',
+        key: 'recipients',
+        label: 'Nơi Nhận (Văn Bản Đảng)',
+        defaultValue: 'Nơi nhận:\n- Ban Thường vụ Đảng ủy xã (để b/c);\n- Các đồng chí Đảng viên Chi bộ;\n- Lưu: Chi ủy.',
+        type: 'text',
+        visible: true,
+        x: 50,
+        y: 435,
+        width: 230,
+        fontSize: 10.5,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '400',
+        color: '#334155',
+        align: 'left'
+      },
+      {
+        id: 'hd05-signer-title',
+        key: 'signer_title',
+        label: 'Chức Danh Ký Đảng',
+        defaultValue: 'T/M CHI BỘ\nBÍ THƯ',
+        type: 'text',
+        visible: true,
+        x: 520,
+        y: 430,
+        width: 250,
+        fontSize: 13,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#0f172a',
+        align: 'center'
+      },
+      {
+        id: 'hd05-seal',
+        key: 'seal',
+        label: 'Mộc Đỏ Chi Bộ Đảng',
+        defaultValue: 'CHI BỘ ẤP GIỒNG ÔNG ĐÔNG / ĐẢNG BỘ XÃ ĐẠI PHƯỚC',
+        type: 'seal',
+        visible: true,
+        x: 570,
+        y: 462,
+        qrSize: 105,
+        fontSize: 9.5,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#dc2626',
+        align: 'center'
+      },
+      {
+        id: 'hd05-signer-name',
+        key: 'signer_name',
+        label: 'Họ Tên Bí Thư',
+        defaultValue: 'Nguyễn Văn Tài',
+        type: 'text',
+        visible: true,
+        x: 520,
+        y: 535,
+        width: 250,
+        fontSize: 13,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#0f172a',
+        align: 'center'
+      },
+      {
+        id: 'hd05-qr',
+        key: 'qr_code',
+        label: 'Mã QR Đảng Viên',
+        defaultValue: 'DANGVIEN-CB-01-NGUYEN-THANH-QUANG',
+        type: 'qr',
+        visible: true,
+        x: 740,
+        y: 195,
+        qrSize: 65,
+        fontSize: 11,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '400',
+        color: '#000000',
+        align: 'center'
+      }
+    ],
+    defaultRecords: [
+      { name: 'Đồng chí Nguyễn Thanh Quang', letter_no: '01-GM/CB', date: 'Giồng Ông Đông, ngày 10 tháng 11 năm 2026', qr_code: 'CB-01-QUANG' },
+      { name: 'Đồng chí Huỳnh Công Thương', letter_no: '02-GM/CB', date: 'Giồng Ông Đông, ngày 10 tháng 11 năm 2026', qr_code: 'CB-02-THUONG' },
+      { name: 'Đồng chí Phạm Thanh Tấn', letter_no: '03-GM/CB', date: 'Giồng Ông Đông, ngày 10 tháng 11 năm 2026', qr_code: 'CB-03-TAN' }
+    ],
+    generateBackground: () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1680;
+      canvas.height = 1160;
+      const ctx = canvas.getContext('2d')!;
+
+      // Nền giấy trắng trang nghiêm
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Đường viền đỏ chuẩn nghi thức Đảng
+      ctx.strokeStyle = '#b91c1c';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(30, 30, canvas.width - 60, canvas.height - 60);
+
+      // Đường kẻ nét liền dưới Tên Chi bộ Đảng
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(170, 180);
+      ctx.lineTo(430, 180);
+      ctx.stroke();
+
+      // Đường gạch dưới trích yếu
+      ctx.strokeStyle = '#b91c1c';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(canvas.width / 2 - 100, 385);
+      ctx.lineTo(canvas.width / 2 + 100, 385);
+      ctx.stroke();
+
+      return canvas.toDataURL('image/png');
+    }
   }
 ];
 

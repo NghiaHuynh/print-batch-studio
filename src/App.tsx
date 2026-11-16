@@ -11,7 +11,9 @@ import { FieldsSidebar } from './components/FieldsSidebar';
 import { CanvasArea } from './components/CanvasArea';
 import { InspectorSidebar } from './components/InspectorSidebar';
 import { DataModal } from './components/DataModal';
+import { LegalStandardModal } from './components/LegalStandardModal';
 import { PrintContainer } from './components/PrintContainer';
+import { LegalStandardType, LEGAL_STANDARDS, standardizeFieldsToLegal } from './services/legalFormatService';
 
 interface HistoryState {
   fields: FieldConfig[];
@@ -47,6 +49,7 @@ export const App: React.FC = () => {
   const [selectedFieldId, setSelectedFieldId] = useState<string | null>(initialPreset.fields[0]?.id || null);
   const [previewIndex, setPreviewIndex] = useState<number>(0);
   const [isDataModalOpen, setIsDataModalOpen] = useState<boolean>(false);
+  const [isLegalModalOpen, setIsLegalModalOpen] = useState<boolean>(false);
 
   // Undo / Redo Stacks
   const [undoStack, setUndoStack] = useState<HistoryState[]>([]);
@@ -166,6 +169,16 @@ export const App: React.FC = () => {
       printBackground: true
     });
     showToast(`Đã tải mẫu: ${preset.name}!`);
+  };
+
+  // Chuẩn hóa toàn bộ các trường theo chuẩn thể thức văn bản pháp quy
+  const handleApplyLegalStandard = (standard: LegalStandardType) => {
+    pushHistory();
+    const standardized = standardizeFieldsToLegal(fields, standard);
+    setFields(standardized);
+    const info = LEGAL_STANDARDS[standard];
+    confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+    showToast(`Đã chuẩn hóa toàn bộ các trường theo ${info.name}! (Times New Roman, cỡ chữ, số hiệu)`);
   };
 
   // Tải lên phôi hình ảnh hoặc PDF (Bảo toàn tỷ lệ cấu trúc gốc & hỗ trợ chỉnh sửa)
@@ -722,6 +735,7 @@ export const App: React.FC = () => {
         onUndo={handleUndo}
         onRedo={handleRedo}
         onOpenDataModal={() => setIsDataModalOpen(true)}
+        onOpenLegalModal={() => setIsLegalModalOpen(true)}
         onUploadTemplate={handleUploadTemplate}
         onSelectPreset={handleSelectPreset}
         onSaveProject={handleSaveProject}
@@ -791,6 +805,14 @@ export const App: React.FC = () => {
         onClose={() => setIsDataModalOpen(false)}
         onUpdateRecords={setRecords}
         onAutoCreateFieldsFromHeaders={handleAutoCreateFieldsFromHeaders}
+      />
+
+      {/* 3.1. Modal Chuẩn Hóa Thể Thức Văn Bản (NĐ 30, TT 68, HD 05) */}
+      <LegalStandardModal
+        isOpen={isLegalModalOpen}
+        onClose={() => setIsLegalModalOpen(false)}
+        onApplyStandard={handleApplyLegalStandard}
+        onSelectPreset={handleSelectPreset}
       />
 
       {/* 4. Vùng in cho lệnh window.print() (@media print) */}
