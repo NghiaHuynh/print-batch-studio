@@ -4,6 +4,7 @@ export interface FieldConfig {
   id: string;
   key: string;              // Key liên kết với cột dữ liệu (vd: 'name', 'code', 'phone')
   label: string;            // Tên hiển thị thân thiện (vd: 'Họ và Tên', 'Mã Định Danh')
+  defaultValue?: string;    // Nội dung văn bản / giá trị hiển thị mặc định (có thể chỉnh sửa trực tiếp)
   type: FieldType;
   visible: boolean;
   x: number;

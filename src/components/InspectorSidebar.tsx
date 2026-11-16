@@ -31,6 +31,7 @@ interface InspectorSidebarProps {
 }
 
 const FONT_OPTIONS = [
+  { label: 'Times New Roman (Chuẩn văn bản pháp quy)', value: "'Times New Roman', Times, serif" },
   { label: 'Inter (Hiện đại, rõ nét)', value: "'Inter', sans-serif" },
   { label: 'Playfair Display (Trang trọng, có chân)', value: "'Playfair Display', serif" },
   { label: 'Roboto (Chuẩn văn bản)', value: "'Roboto', sans-serif" },
@@ -286,6 +287,32 @@ export const InspectorSidebar: React.FC<InspectorSidebarProps> = ({
         {/* Cấu hình cho TEXT */}
         {selectedField.type === 'text' && (
           <>
+            {/* 1. Tùy chỉnh Nội dung văn bản trực tiếp */}
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-xs font-semibold text-slate-700">Nội dung chữ trên mẫu</label>
+                <span className="text-[10px] text-blue-600 font-medium">Chỉnh sửa trực tiếp</span>
+              </div>
+              {selectedField.width || (selectedField.defaultValue && selectedField.defaultValue.includes('\n')) ? (
+                <textarea
+                  rows={4}
+                  value={selectedField.defaultValue ?? ''}
+                  placeholder={`Nội dung cho [${selectedField.label}]...`}
+                  onChange={(e) => onUpdateField(selectedField.id, { defaultValue: e.target.value })}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-800 focus:outline-none focus:border-blue-600 font-sans leading-relaxed"
+                />
+              ) : (
+                <input
+                  type="text"
+                  value={selectedField.defaultValue ?? ''}
+                  placeholder={`Nội dung cho [${selectedField.label}]...`}
+                  onChange={(e) => onUpdateField(selectedField.id, { defaultValue: e.target.value })}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-blue-600 font-sans"
+                />
+              )}
+            </div>
+
+            {/* 2. Kiểu chữ (Font Family) */}
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">Kiểu chữ (Font Family)</label>
               <select
@@ -299,33 +326,138 @@ export const InspectorSidebar: React.FC<InspectorSidebarProps> = ({
               </select>
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Cỡ chữ (px)</label>
+            {/* 3. CỠ CHỮ LINH HOẠT (Font Size Steppers, Slider & Chips) */}
+            <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-800">Cỡ chữ (Font Size)</span>
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="number"
+                    min={8}
+                    max={120}
+                    step={0.5}
+                    value={selectedField.fontSize}
+                    onChange={(e) => onUpdateField(selectedField.id, { fontSize: parseFloat(e.target.value) || 12 })}
+                    className="w-14 text-center bg-white border border-slate-300 rounded px-1.5 py-0.5 text-xs font-mono font-bold text-blue-700 focus:outline-none focus:border-blue-500"
+                  />
+                  <span className="text-[11px] font-semibold text-slate-400">px</span>
+                </div>
+              </div>
+
+              {/* Thanh trượt điều chỉnh mượt mà */}
+              <input
+                type="range"
+                min={8}
+                max={60}
+                step={0.5}
+                value={selectedField.fontSize}
+                onChange={(e) => onUpdateField(selectedField.id, { fontSize: parseFloat(e.target.value) || 12 })}
+                className="w-full accent-blue-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg"
+              />
+
+              {/* Nút tăng giảm nhanh (-2, -1, +1, +2) */}
+              <div className="grid grid-cols-4 gap-1">
+                <button
+                  type="button"
+                  onClick={() => onUpdateField(selectedField.id, { fontSize: Math.max(8, Number((selectedField.fontSize - 2).toFixed(1))) })}
+                  className="py-1 px-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded text-[11px] font-semibold transition"
+                >
+                  -2px
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onUpdateField(selectedField.id, { fontSize: Math.max(8, Number((selectedField.fontSize - 0.5).toFixed(1))) })}
+                  className="py-1 px-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded text-[11px] font-semibold transition"
+                >
+                  -0.5
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onUpdateField(selectedField.id, { fontSize: Math.min(120, Number((selectedField.fontSize + 0.5).toFixed(1))) })}
+                  className="py-1 px-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded text-[11px] font-semibold transition"
+                >
+                  +0.5
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onUpdateField(selectedField.id, { fontSize: Math.min(120, Number((selectedField.fontSize + 2).toFixed(1))) })}
+                  className="py-1 px-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded text-[11px] font-semibold transition"
+                >
+                  +2px
+                </button>
+              </div>
+
+              {/* Các kích thước chuẩn phổ biến */}
+              <div className="flex flex-wrap gap-1 pt-1">
+                {[10, 10.5, 11, 11.5, 12, 13, 14, 15, 17, 21, 26, 32].map((sz) => (
+                  <button
+                    key={sz}
+                    type="button"
+                    onClick={() => onUpdateField(selectedField.id, { fontSize: sz })}
+                    className={`px-1.5 py-0.5 rounded text-[10px] font-semibold transition ${
+                      Math.abs(selectedField.fontSize - sz) < 0.3
+                        ? 'bg-blue-600 text-white shadow-xs'
+                        : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    {sz}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 4. Độ rộng khung văn bản (Tự động xuống dòng) */}
+            <div>
+              <div className="flex justify-between items-center mb-1">
+                <label className="text-xs font-semibold text-slate-700">Độ rộng khung & Xuống dòng</label>
+                {selectedField.width ? (
+                  <button
+                    type="button"
+                    onClick={() => onUpdateField(selectedField.id, { width: undefined })}
+                    className="text-[10px] text-rose-600 hover:underline"
+                  >
+                    Hủy giới hạn (1 dòng)
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => onUpdateField(selectedField.id, { width: 350 })}
+                    className="text-[10px] text-blue-600 hover:underline"
+                  >
+                    Bật xuống dòng
+                  </button>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
                 <input
                   type="number"
-                  min={8}
-                  max={120}
-                  value={selectedField.fontSize}
-                  onChange={(e) => onUpdateField(selectedField.id, { fontSize: parseInt(e.target.value) || 16 })}
+                  placeholder="Tự do theo 1 dòng (không giới hạn)"
+                  value={selectedField.width || ''}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value);
+                    onUpdateField(selectedField.id, { width: val > 0 ? val : undefined });
+                  }}
                   className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-blue-600 font-mono"
                 />
+                <span className="text-[11px] text-slate-400">px</span>
               </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Độ đậm</label>
-                <select
-                  value={selectedField.fontWeight}
-                  onChange={(e) => onUpdateField(selectedField.id, { fontWeight: e.target.value as any })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-blue-600"
-                >
-                  <option value="300">Mảnh (Light)</option>
-                  <option value="400">Thường (Regular)</option>
-                  <option value="500">Vừa (Medium)</option>
-                  <option value="600">Hơi đậm (Semi-Bold)</option>
-                  <option value="700">Đậm (Bold)</option>
-                  <option value="800">Cực đậm (Extra-Bold)</option>
-                </select>
-              </div>
+            </div>
+
+            {/* 5. Độ đậm */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Độ đậm nét</label>
+              <select
+                value={selectedField.fontWeight}
+                onChange={(e) => onUpdateField(selectedField.id, { fontWeight: e.target.value as any })}
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-blue-600"
+              >
+                <option value="300">Mảnh (Light 300)</option>
+                <option value="400">Thường (Regular 400)</option>
+                <option value="500">Vừa (Medium 500)</option>
+                <option value="600">Hơi đậm (Semi-Bold 600)</option>
+                <option value="700">Đậm (Bold 700)</option>
+                <option value="800">Cực đậm (Extra-Bold 800)</option>
+              </select>
             </div>
 
             <div>

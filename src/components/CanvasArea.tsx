@@ -752,7 +752,7 @@ export const CanvasArea: React.FC<CanvasAreaProps> = ({
         {fields.map((field) => {
           if (!field.visible) return null;
           const isSelected = field.id === selectedFieldId;
-          const rawVal = currentRecord[field.key] || currentRecord[field.label] || `[${field.label}]`;
+          const rawVal = currentRecord[field.key] ?? (field.defaultValue !== undefined ? field.defaultValue : (currentRecord[field.label] || `[${field.label}]`));
 
           let displayText = rawVal;
           if (field.prefix) displayText = field.prefix + displayText;

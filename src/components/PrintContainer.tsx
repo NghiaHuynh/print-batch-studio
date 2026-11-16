@@ -72,7 +72,7 @@ export const PrintContainer: React.FC<PrintContainerProps> = ({
           {/* Các trường dữ liệu */}
           {fields.map((field) => {
             if (!field.visible) return null;
-            const rawVal = record[field.key] || record[field.label] || '';
+            const rawVal = record[field.key] ?? (field.defaultValue !== undefined ? field.defaultValue : (record[field.label] || ''));
             if (!rawVal) return null;
 
             let displayText = rawVal;

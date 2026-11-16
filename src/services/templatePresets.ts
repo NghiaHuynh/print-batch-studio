@@ -609,30 +609,143 @@ export const PRESET_TEMPLATES: PresetTemplate[] = [
     width: 1000,
     height: 720,
     fields: [
+      // ================= TRANG TRÁI: CHƯƠNG TRÌNH =================
+      {
+        id: 'ddk-prog-title',
+        key: 'prog_title',
+        label: 'Tiêu đề Chương Trình',
+        defaultValue: 'CHƯƠNG TRÌNH',
+        type: 'text',
+        visible: true,
+        x: 40,
+        y: 42,
+        width: 420,
+        fontSize: 17,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#b91c1c',
+        align: 'center'
+      },
+      {
+        id: 'ddk-prog-sub',
+        key: 'prog_subtitle',
+        label: 'Chủ đề Ngày hội',
+        defaultValue: 'NGÀY HỘI ĐẠI ĐOÀN KẾT TOÀN DÂN TỘC\nỞ KHU DÂN CƯ NĂM 2026',
+        type: 'text',
+        visible: true,
+        x: 40,
+        y: 66,
+        width: 420,
+        fontSize: 11.5,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#0f172a',
+        align: 'center'
+      },
+      {
+        id: 'ddk-prog-agenda',
+        key: 'agenda_steps',
+        label: '11 Nội Dung Chương Trình',
+        defaultValue: `1. Văn nghệ chào mừng.
+2. Chào cờ.
+3. Tuyên bố lý do, giới thiệu đại biểu kết hợp Ôn truyền thống 96 năm ngày Thành lập Mặt trận Dân tộc thống nhất Việt Nam, ngày Truyền thống Mặt trận Tổ quốc Việt Nam (18/11/1930 – 18/11/2026).
+4. Báo cáo của Ban công tác Mặt trận khu dân cư (hoặc liên Ban công tác Mặt trận khu dân cư).
+5. Các đại biểu trao đổi, thảo luận.
+6. Chủ trì phát biểu tiếp thu và giải trình (nếu có).
+7. Biểu dương, tôn vinh, khen thưởng những tập thể, gia đình và cá nhân tiêu biểu.
+8. Tặng quà hộ gia đình nghèo, cận nghèo, gia đình chính sách (nếu có).
+9. Mời lãnh đạo cấp trên phát biểu, tặng quà (nếu có).
+10. Phát động hưởng ứng phong trào thi đua; xây dựng khu dân cư đoàn kết, an toàn, ấm no, hạnh phúc.
+11. Phát biểu cảm ơn và kết thúc buổi Lễ.`,
+        type: 'text',
+        visible: true,
+        x: 42,
+        y: 114,
+        width: 418,
+        fontSize: 10.5,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '400',
+        color: '#0f172a',
+        align: 'left'
+      },
+      {
+        id: 'ddk-prog-org',
+        key: 'prog_organizer',
+        label: 'Ban Tổ Chức (Trang Trái)',
+        defaultValue: 'BAN TỔ CHỨC',
+        type: 'text',
+        visible: true,
+        x: 300,
+        y: 585,
+        width: 150,
+        fontSize: 12,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#b91c1c',
+        align: 'center'
+      },
+
+      // ================= TRANG PHẢI: THƯ MỜI =================
+      {
+        id: 'ddk-org-left',
+        key: 'issuing_agency',
+        label: 'Cơ Quan Ban Hành (Trang Phải)',
+        defaultValue: 'ỦY BAN MTTQ VIỆT NAM\nXÃ ĐẠI PHƯỚC\nBVĐ ẤP GIỒNG ÔNG ĐÔNG',
+        type: 'text',
+        visible: true,
+        x: 520,
+        y: 44,
+        width: 210,
+        fontSize: 10.5,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#0f172a',
+        align: 'center'
+      },
       {
         id: 'ddk-no',
         key: 'letter_no',
         label: 'Số Thư Mời',
+        defaultValue: '01/TM-BVĐ',
         type: 'text',
         visible: true,
-        x: 540,
-        y: 88,
-        fontSize: 12,
+        x: 520,
+        y: 92,
+        width: 210,
+        fontSize: 11,
         fontFamily: "'Times New Roman', Times, serif",
         fontWeight: '600',
         color: '#0f172a',
-        align: 'left',
+        align: 'center',
         prefix: 'Số: '
+      },
+      {
+        id: 'ddk-motto-right',
+        key: 'national_motto',
+        label: 'Quốc Hiệu & Tiêu Ngữ',
+        defaultValue: 'CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM\nĐộc lập – Tự do – Hạnh phúc',
+        type: 'text',
+        visible: true,
+        x: 740,
+        y: 44,
+        width: 240,
+        fontSize: 10.5,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#0f172a',
+        align: 'center'
       },
       {
         id: 'ddk-date',
         key: 'date',
         label: 'Ngày Tháng Ban Hành',
+        defaultValue: 'Giồng Ông Đông, ngày 02 tháng 11 năm 2026',
         type: 'text',
         visible: true,
         x: 740,
-        y: 88,
-        fontSize: 12,
+        y: 84,
+        width: 240,
+        fontSize: 10.5,
         fontFamily: "'Times New Roman', Times, serif",
         fontStyle: 'italic',
         fontWeight: '400',
@@ -640,14 +753,49 @@ export const PRESET_TEMPLATES: PresetTemplate[] = [
         align: 'center'
       },
       {
+        id: 'ddk-invite-title',
+        key: 'invitation_heading',
+        label: 'Tiêu Đề THƯ MỜI',
+        defaultValue: 'THƯ MỜI',
+        type: 'text',
+        visible: true,
+        x: 630,
+        y: 110,
+        width: 240,
+        fontSize: 26,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#b91c1c',
+        align: 'center'
+      },
+      {
+        id: 'ddk-intro',
+        key: 'invitation_intro',
+        label: 'Đoạn Căn Cứ Mở Đầu',
+        defaultValue: `Thực hiện Kế hoạch số 54/KH-MTTQ-BTT, ngày 05/10/2026 của Ban Thường trực Ủy ban MTTQ Việt Nam xã Đại Phước về tổ chức các hoạt động thiết thực chào mừng kỷ niệm 96 năm ngày truyền thống Mặt trận Tổ quốc Việt Nam (18/11/1930 – 18/11/2026) và tổ chức “Ngày hội đại đoàn kết toàn dân tộc” ở khu dân cư năm 2026;
+Được sự thống nhất của Thường trực Đảng ủy xã Đại Phước; Ban Thường trực Ủy ban MTTQ Việt Nam xã Đại Phước và Chi ủy Chi bộ ấp Giồng Ông Đông;
+Ban vận động ấp Giồng Ông Đông trân trọng kính mời:`,
+        type: 'text',
+        visible: true,
+        x: 535,
+        y: 146,
+        width: 425,
+        fontSize: 10.5,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '400',
+        color: '#1e293b',
+        align: 'left'
+      },
+      {
         id: 'ddk-name',
         key: 'name',
         label: 'Họ và Tên Khách Mời',
+        defaultValue: 'Nguyễn Thanh Quang',
         type: 'text',
         visible: true,
-        x: 540,
+        x: 535,
         y: 275,
-        fontSize: 15,
+        fontSize: 14.5,
         fontFamily: "'Times New Roman', Times, serif",
         fontWeight: '700',
         color: '#0f172a',
@@ -658,11 +806,12 @@ export const PRESET_TEMPLATES: PresetTemplate[] = [
         id: 'ddk-address',
         key: 'address',
         label: 'Địa Chỉ Khách Mời',
+        defaultValue: 'ấp Giồng Ông Đông, xã Đại Phước',
         type: 'text',
         visible: true,
-        x: 540,
+        x: 535,
         y: 310,
-        fontSize: 13.5,
+        fontSize: 13,
         fontFamily: "'Times New Roman', Times, serif",
         fontWeight: '500',
         color: '#1e293b',
@@ -673,11 +822,12 @@ export const PRESET_TEMPLATES: PresetTemplate[] = [
         id: 'ddk-time',
         key: 'time',
         label: 'Thời Gian Tổ Chức',
+        defaultValue: 'Vào lúc 7 giờ 00 ngày 15/11/2026 (Chủ nhật).',
         type: 'text',
         visible: true,
-        x: 540,
+        x: 535,
         y: 345,
-        fontSize: 13,
+        fontSize: 12.5,
         fontFamily: "'Times New Roman', Times, serif",
         fontWeight: '500',
         color: '#1e293b',
@@ -688,11 +838,12 @@ export const PRESET_TEMPLATES: PresetTemplate[] = [
         id: 'ddk-location',
         key: 'location',
         label: 'Địa Điểm Tổ Chức',
+        defaultValue: 'Nhà Bia Liệt sĩ ấp Giồng Ông Đông, xã Đại Phước.',
         type: 'text',
         visible: true,
-        x: 540,
+        x: 535,
         y: 380,
-        fontSize: 13,
+        fontSize: 12.5,
         fontFamily: "'Times New Roman', Times, serif",
         fontWeight: '500',
         color: '#1e293b',
@@ -703,11 +854,12 @@ export const PRESET_TEMPLATES: PresetTemplate[] = [
         id: 'ddk-content',
         key: 'content',
         label: 'Nội Dung Cuộc Họp',
+        defaultValue: 'Dự “Ngày hội đại đoàn kết toàn dân tộc ở khu dân cư năm 2026”.',
         type: 'text',
         visible: true,
-        x: 540,
+        x: 535,
         y: 415,
-        fontSize: 13,
+        fontSize: 12.5,
         fontFamily: "'Times New Roman', Times, serif",
         fontWeight: '500',
         color: '#1e293b',
@@ -715,16 +867,65 @@ export const PRESET_TEMPLATES: PresetTemplate[] = [
         prefix: 'Nội dung: '
       },
       {
+        id: 'ddk-courtesy',
+        key: 'courtesy_closing',
+        label: 'Lời Kêu Gọi / Kính Mời',
+        defaultValue: 'Nhận được thư mời, rất mong quý vị đại biểu sắp xếp thời gian, công việc đến dự để Ngày hội thêm phần long trọng và ý nghĩa!',
+        type: 'text',
+        visible: true,
+        x: 535,
+        y: 460,
+        width: 425,
+        fontSize: 10.5,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontStyle: 'italic',
+        fontWeight: '400',
+        color: '#1e293b',
+        align: 'left'
+      },
+      {
+        id: 'ddk-sign-bithu',
+        key: 'sign_bithu',
+        label: 'Ký tên Bí thư Chi bộ',
+        defaultValue: 'BÍ THƯ CHI BỘ\n(Đã ký)\n\nNguyễn Văn Minh',
+        type: 'text',
+        visible: true,
+        x: 530,
+        y: 508,
+        width: 180,
+        fontSize: 11,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#0f172a',
+        align: 'center'
+      },
+      {
+        id: 'ddk-sign-truongban',
+        key: 'sign_truongban',
+        label: 'Ký tên Trưởng Ban Vận Động',
+        defaultValue: 'TM. BAN VẬN ĐỘNG\nTRƯỞNG BAN\n(Đã ký)\n\nNguyễn Tấn Tài',
+        type: 'text',
+        visible: true,
+        x: 770,
+        y: 500,
+        width: 195,
+        fontSize: 11,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '700',
+        color: '#0f172a',
+        align: 'center'
+      },
+      {
         id: 'ddk-qr',
         key: 'qr_code',
         label: 'Mã QR Check-in',
         type: 'qr',
         visible: true,
-        x: 900,
+        x: 915,
         y: 625,
-        width: 65,
-        height: 65,
-        qrSize: 65,
+        width: 60,
+        height: 60,
+        qrSize: 60,
         fontSize: 10,
         fontFamily: "'Inter', sans-serif",
         fontWeight: '400',
@@ -804,30 +1005,14 @@ export const PRESET_TEMPLATES: PresetTemplate[] = [
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // Nhãn chỉ dẫn đường gập
+      // Nhãn chỉ dẫn đường gập ở dưới đáy
       ctx.fillStyle = '#94a3b8';
       ctx.font = '16px "Times New Roman", Times, serif';
       ctx.textAlign = 'center';
       ctx.fillText('- - - ĐƯỜNG GẤP GIẤY (A4 GẤP ĐÔI THÀNH 2 TRANG A5) - - -', centerX, canvas.height - 18);
 
-      // ==========================================
-      // TRANG TRÁI: CHƯƠNG TRÌNH NGÀY HỘI
-      // ==========================================
+      // Đường kẻ trang trí phân cách dưới tiêu đề bên trang trái
       const leftCenterX = centerX / 2;
-
-      // Tiêu đề chương trình chuẩn kích thước
-      ctx.fillStyle = '#b91c1c';
-      ctx.font = 'bold 34px "Times New Roman", Times, serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('CHƯƠNG TRÌNH', leftCenterX, 100);
-
-      ctx.fillStyle = '#0f172a';
-      ctx.font = 'bold 23px "Times New Roman", Times, serif';
-      ctx.fillText('NGÀY HỘI ĐẠI ĐOÀN KẾT TOÀN DÂN TỘC', leftCenterX, 138);
-      ctx.font = 'bold 21px "Times New Roman", Times, serif';
-      ctx.fillText('Ở KHU DÂN CƯ NĂM 2026', leftCenterX, 170);
-
-      // Đường kẻ phân cách
       ctx.strokeStyle = '#b91c1c';
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -835,74 +1020,7 @@ export const PRESET_TEMPLATES: PresetTemplate[] = [
       ctx.lineTo(leftCenterX + 180, 190);
       ctx.stroke();
 
-      // Danh sách 11 nội dung chương trình đúng từng chữ như mẫu gốc
-      const agenda = [
-        ['1. Văn nghệ chào mừng.'],
-        ['2. Chào cờ.'],
-        [
-          '3. Tuyên bố lý do, giới thiệu đại biểu kết hợp Ôn truyền thống 96 năm',
-          '   ngày Thành lập Mặt trận Dân tộc thống nhất Việt Nam, ngày Truyền',
-          '   thống Mặt trận Tổ quốc Việt Nam (18/11/1930 – 18/11/2026).'
-        ],
-        [
-          '4. Báo cáo của Ban công tác Mặt trận khu dân cư (hoặc liên Ban',
-          '   công tác Mặt trận khu dân cư).'
-        ],
-        ['5. Các đại biểu trao đổi, thảo luận.'],
-        ['6. Chủ trì phát biểu tiếp thu và giải trình (nếu có).'],
-        [
-          '7. Biểu dương, tôn vinh, khen thưởng những tập thể, gia đình',
-          '   và cá nhân tiêu biểu.'
-        ],
-        ['8. Tặng quà hộ gia đình nghèo, cận nghèo, gia đình chính sách (nếu có).'],
-        ['9. Mời lãnh đạo cấp trên phát biểu, tặng quà (nếu có).'],
-        [
-          '10. Phát động hưởng ứng phong trào thi đua; xây dựng khu dân',
-          '    cư đoàn kết, an toàn, ấm no, hạnh phúc.'
-        ],
-        ['11. Phát biểu cảm ơn và kết thúc buổi Lễ.']
-      ];
-
-      ctx.textAlign = 'left';
-      ctx.fillStyle = '#0f172a';
-      ctx.font = '21px "Times New Roman", Times, serif';
-
-      let currentY = 240;
-      agenda.forEach((itemLines) => {
-        itemLines.forEach((line) => {
-          ctx.fillText(line, 80, currentY);
-          currentY += 34;
-        });
-        currentY += 10;
-      });
-
-      // Ban Tổ Chức ký tên
-      ctx.fillStyle = '#b91c1c';
-      ctx.font = 'bold 24px "Times New Roman", Times, serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('BAN TỔ CHỨC', leftCenterX + 160, 1180);
-
-      // ==========================================
-      // TRANG PHẢI: THƯ MỜI CHÍNH THỨC
-      // ==========================================
-      const rightCenterX = centerX + centerX / 2;
-
-      // Tiêu ngữ bên trái (UBMTTQ)
-      ctx.fillStyle = '#0f172a';
-      ctx.font = 'bold 21px "Times New Roman", Times, serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('ỦY BAN MTTQ VIỆT NAM', centerX + 230, 90);
-      ctx.fillText('XÃ ĐẠI PHƯỚC', centerX + 230, 120);
-      ctx.font = 'bold 20px "Times New Roman", Times, serif';
-      ctx.fillText('BVĐ ẤP GIỒNG ÔNG ĐÔNG', centerX + 230, 150);
-
-      // Tiêu ngữ Quốc gia bên phải
-      ctx.font = 'bold 21px "Times New Roman", Times, serif';
-      ctx.fillText('CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM', centerX + 730, 90);
-      ctx.font = 'bold 21px "Times New Roman", Times, serif';
-      ctx.fillText('Độc lập – Tự do – Hạnh phúc', centerX + 730, 120);
-
-      // Gạch chân Độc lập - Tự do - Hạnh phúc
+      // Gạch chân Quốc hiệu & Tiêu ngữ bên trang phải
       ctx.strokeStyle = '#0f172a';
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -910,41 +1028,11 @@ export const PRESET_TEMPLATES: PresetTemplate[] = [
       ctx.lineTo(centerX + 840, 132);
       ctx.stroke();
 
-      // Tiêu đề THƯ MỜI lớn màu đỏ trang trọng
-      ctx.fillStyle = '#b91c1c';
-      ctx.font = 'bold 52px "Times New Roman", Times, serif';
-      ctx.fillText('THƯ MỜI', rightCenterX, 235);
-
-      // Đoạn trích yếu mở đầu đúng từng câu chữ như mẫu
-      ctx.fillStyle = '#1e293b';
-      ctx.font = '21px "Times New Roman", Times, serif';
-      ctx.textAlign = 'left';
-
-      const introLines = [
-        'Thực hiện Kế hoạch số 54/KH-MTTQ-BTT, ngày 05/10/2026 của Ban Thường trực Ủy ban',
-        'MTTQ Việt Nam xã Đại Phước về tổ chức các hoạt động thiết thực chào mừng kỷ niệm',
-        '96 năm ngày truyền thống Mặt trận Tổ quốc Việt Nam (18/11/1930 – 18/11/2026) và tổ',
-        'chức “Ngày hội đại đoàn kết toàn dân tộc” ở khu dân cư năm 2026;',
-        'Được sự thống nhất của Thường trực Đảng ủy xã Đại Phước; Ban Thường trực Ủy ban',
-        'MTTQ Việt Nam xã Đại Phước và Chi ủy Chi bộ ấp Giồng Ông Đông;'
-      ];
-
-      let introY = 295;
-      introLines.forEach((line) => {
-        ctx.fillText(line, centerX + 75, introY);
-        introY += 32;
-      });
-
-      ctx.font = 'bold 22px "Times New Roman", Times, serif';
-      ctx.fillStyle = '#0f172a';
-      ctx.fillText('Ban vận động ấp Giồng Ông Đông trân trọng kính mời:', centerX + 75, introY + 12);
-
-      // Các dòng chấm kẻ dẫn trường căn chuẩn tuyệt đối với các trường điền
+      // Các dòng chấm kẻ dẫn trường căn chuẩn tuyệt đối với baseline của các trường điền
       ctx.setLineDash([4, 6]);
-      ctx.strokeStyle = '#94a3b8';
+      ctx.strokeStyle = '#cbd5e1';
       ctx.lineWidth = 1.5;
 
-      // Tọa độ Y của các đường chấm kẻ (Khớp 100% với baseline của trường điền)
       const dotLines = [
         { y: 588 }, // Baseline dòng Họ tên (Stage y = 294)
         { y: 658 }, // Baseline dòng Địa chỉ (Stage y = 329)
@@ -960,36 +1048,6 @@ export const PRESET_TEMPLATES: PresetTemplate[] = [
         ctx.stroke();
       });
       ctx.setLineDash([]);
-
-      // Dòng lịch sự kêu gọi cuối thư
-      ctx.font = 'italic 21px "Times New Roman", Times, serif';
-      ctx.fillStyle = '#1e293b';
-      ctx.fillText('Nhận được thư mời, rất mong quý vị đại biểu sắp xếp thời gian, công việc đến dự', centerX + 75, 930);
-      ctx.fillText('để Ngày hội thêm phần long trọng và ý nghĩa!', centerX + 75, 962);
-
-      // Chữ ký và con dấu ở cuối trang phải
-      ctx.textAlign = 'center';
-      ctx.fillStyle = '#0f172a';
-      ctx.font = 'bold 22px "Times New Roman", Times, serif';
-
-      // Bí thư Chi bộ bên trái
-      ctx.fillText('BÍ THƯ CHI BỘ', centerX + 230, 1030);
-      ctx.font = 'italic 18px "Times New Roman", Times, serif';
-      ctx.fillStyle = '#64748b';
-      ctx.fillText('(Đã ký)', centerX + 230, 1075);
-      ctx.font = 'bold 23px "Times New Roman", Times, serif';
-      ctx.fillStyle = '#0f172a';
-      ctx.fillText('Nguyễn Văn Minh', centerX + 230, 1250);
-
-      // Trưởng ban bên phải
-      ctx.fillText('TM. BAN VẬN ĐỘNG', centerX + 730, 1015);
-      ctx.fillText('TRƯỞNG BAN', centerX + 730, 1045);
-      ctx.font = 'italic 18px "Times New Roman", Times, serif';
-      ctx.fillStyle = '#64748b';
-      ctx.fillText('(Đã ký)', centerX + 730, 1090);
-      ctx.font = 'bold 23px "Times New Roman", Times, serif';
-      ctx.fillStyle = '#0f172a';
-      ctx.fillText('Nguyễn Tấn Tài', centerX + 730, 1250);
 
       // Dấu mộc đỏ mô phỏng chuẩn
       ctx.strokeStyle = '#dc2626';

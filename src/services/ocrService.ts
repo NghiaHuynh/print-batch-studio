@@ -376,6 +376,7 @@ function clusterItemsIntoFields(
       id: `detected_${Date.now()}_${index}`,
       key: keyInfo.key,
       label: keyInfo.label,
+      defaultValue: cleanText,
       type: keyInfo.type,
       visible: true,
       x: Math.max(10, Math.min(item.x, stageWidth - 100)),
