@@ -93,7 +93,11 @@ export const PrintContainer: React.FC<PrintContainerProps> = ({
                   fontWeight: field.fontWeight,
                   color: field.color,
                   fontStyle: field.fontStyle || 'normal',
-                  textAlign: field.align
+                  textAlign: field.align,
+                  lineHeight: 1.45,
+                  whiteSpace: field.width ? 'pre-wrap' : 'pre',
+                  width: field.width ? `${field.width}px` : undefined,
+                  maxWidth: field.width ? `${field.width}px` : undefined
                 }}
               >
                 {field.type === 'text' && (

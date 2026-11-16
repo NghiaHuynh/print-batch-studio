@@ -605,20 +605,50 @@ export const PRESET_TEMPLATES: PresetTemplate[] = [
     id: 'invitation-daidoanket',
     name: 'Thư Mời Ngày Hội Đại Đoàn Kết Toàn Dân Tộc (Mặt Trận Tổ Quốc)',
     category: 'invitation',
-    description: 'Mẫu thiệp gấp đôi chuẩn thể thức MTTQ Việt Nam (Trang trái: Chương trình 11 bước; Trang phải: Thư mời có họ tên, địa chỉ, số hiệu, thời gian & chữ ký).',
-    width: 960,
-    height: 640,
+    description: 'Bản số hóa chuẩn thể thức 2 trang A4 gấp đôi (Trang trái: Chương trình 11 bước; Trang phải: Thư mời chuẩn thể thức MTTQ với kích thước chữ và cấu trúc chuẩn 100% theo mẫu gốc).',
+    width: 1000,
+    height: 720,
     fields: [
+      {
+        id: 'ddk-no',
+        key: 'letter_no',
+        label: 'Số Thư Mời',
+        type: 'text',
+        visible: true,
+        x: 540,
+        y: 88,
+        fontSize: 12,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '600',
+        color: '#0f172a',
+        align: 'left',
+        prefix: 'Số: '
+      },
+      {
+        id: 'ddk-date',
+        key: 'date',
+        label: 'Ngày Tháng Ban Hành',
+        type: 'text',
+        visible: true,
+        x: 740,
+        y: 88,
+        fontSize: 12,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontStyle: 'italic',
+        fontWeight: '400',
+        color: '#0f172a',
+        align: 'center'
+      },
       {
         id: 'ddk-name',
         key: 'name',
         label: 'Họ và Tên Khách Mời',
         type: 'text',
         visible: true,
-        x: 580,
-        y: 338,
-        fontSize: 16,
-        fontFamily: "'Inter', sans-serif",
+        x: 540,
+        y: 275,
+        fontSize: 15,
+        fontFamily: "'Times New Roman', Times, serif",
         fontWeight: '700',
         color: '#0f172a',
         align: 'left',
@@ -630,29 +660,14 @@ export const PRESET_TEMPLATES: PresetTemplate[] = [
         label: 'Địa Chỉ Khách Mời',
         type: 'text',
         visible: true,
-        x: 580,
-        y: 372,
-        fontSize: 15,
-        fontFamily: "'Inter', sans-serif",
+        x: 540,
+        y: 310,
+        fontSize: 13.5,
+        fontFamily: "'Times New Roman', Times, serif",
         fontWeight: '500',
         color: '#1e293b',
         align: 'left',
         prefix: '- Địa chỉ: '
-      },
-      {
-        id: 'ddk-no',
-        key: 'letter_no',
-        label: 'Số Thư Mời',
-        type: 'text',
-        visible: true,
-        x: 510,
-        y: 110,
-        fontSize: 13,
-        fontFamily: "'Space Mono', monospace",
-        fontWeight: '600',
-        color: '#334155',
-        align: 'left',
-        prefix: 'Số: '
       },
       {
         id: 'ddk-time',
@@ -660,10 +675,10 @@ export const PRESET_TEMPLATES: PresetTemplate[] = [
         label: 'Thời Gian Tổ Chức',
         type: 'text',
         visible: true,
-        x: 580,
-        y: 406,
-        fontSize: 14,
-        fontFamily: "'Inter', sans-serif",
+        x: 540,
+        y: 345,
+        fontSize: 13,
+        fontFamily: "'Times New Roman', Times, serif",
         fontWeight: '500',
         color: '#1e293b',
         align: 'left',
@@ -675,14 +690,29 @@ export const PRESET_TEMPLATES: PresetTemplate[] = [
         label: 'Địa Điểm Tổ Chức',
         type: 'text',
         visible: true,
-        x: 580,
-        y: 440,
-        fontSize: 14,
-        fontFamily: "'Inter', sans-serif",
+        x: 540,
+        y: 380,
+        fontSize: 13,
+        fontFamily: "'Times New Roman', Times, serif",
         fontWeight: '500',
         color: '#1e293b',
         align: 'left',
         prefix: 'Địa điểm: '
+      },
+      {
+        id: 'ddk-content',
+        key: 'content',
+        label: 'Nội Dung Cuộc Họp',
+        type: 'text',
+        visible: true,
+        x: 540,
+        y: 415,
+        fontSize: 13,
+        fontFamily: "'Times New Roman', Times, serif",
+        fontWeight: '500',
+        color: '#1e293b',
+        align: 'left',
+        prefix: 'Nội dung: '
       },
       {
         id: 'ddk-qr',
@@ -690,11 +720,11 @@ export const PRESET_TEMPLATES: PresetTemplate[] = [
         label: 'Mã QR Check-in',
         type: 'qr',
         visible: true,
-        x: 870,
-        y: 535,
-        width: 70,
-        height: 70,
-        qrSize: 70,
+        x: 900,
+        y: 625,
+        width: 65,
+        height: 65,
+        qrSize: 65,
         fontSize: 10,
         fontFamily: "'Inter', sans-serif",
         fontWeight: '400',
@@ -703,44 +733,80 @@ export const PRESET_TEMPLATES: PresetTemplate[] = [
       }
     ],
     defaultRecords: [
-      { name: 'Nguyễn Thanh Quang', address: 'ấp Giồng Ông Đông, xã Đại Phước', letter_no: '01/TM-BVĐ', time: 'Vào lúc 7 giờ 00 ngày 15/11/2026 (Chủ nhật)', location: 'Nhà Bia Liệt sĩ ấp Giồng Ông Đông, xã Đại Phước', qr_code: 'TM-01-NGUYEN-THANH-QUANG' },
-      { name: 'Trần Văn Hùng', address: 'ấp Giồng Ông Đông, xã Đại Phước', letter_no: '02/TM-BVĐ', time: 'Vào lúc 7 giờ 00 ngày 15/11/2026 (Chủ nhật)', location: 'Nhà Bia Liệt sĩ ấp Giồng Ông Đông, xã Đại Phước', qr_code: 'TM-02-TRAN-VAN-HUNG' },
-      { name: 'Lê Thị Mai', address: 'ấp Giồng Ông Đông, xã Đại Phước', letter_no: '03/TM-BVĐ', time: 'Vào lúc 7 giờ 00 ngày 15/11/2026 (Chủ nhật)', location: 'Nhà Bia Liệt sĩ ấp Giồng Ông Đông, xã Đại Phước', qr_code: 'TM-03-LE-THI-MAI' },
-      { name: 'Phạm Hồng Thái', address: 'ấp Giồng Ông Đông, xã Đại Phước', letter_no: '04/TM-BVĐ', time: 'Vào lúc 7 giờ 00 ngày 15/11/2026 (Chủ nhật)', location: 'Nhà Bia Liệt sĩ ấp Giồng Ông Đông, xã Đại Phước', qr_code: 'TM-04-PHAM-HONG-THAI' }
+      {
+        name: 'Nguyễn Thanh Quang',
+        address: 'ấp Giồng Ông Đông, xã Đại Phước',
+        letter_no: '01/TM-BVĐ',
+        date: 'Giồng Ông Đông, ngày 02 tháng 11 năm 2026',
+        time: 'Vào lúc 7 giờ 00 ngày 15/11/2026 (Chủ nhật).',
+        location: 'Nhà Bia Liệt sĩ ấp Giồng Ông Đông, xã Đại Phước.',
+        content: 'Dự “Ngày hội đại đoàn kết toàn dân tộc ở khu dân cư năm 2026”.',
+        qr_code: 'TM-01-NGUYEN-THANH-QUANG'
+      },
+      {
+        name: 'Trần Văn Hùng',
+        address: 'ấp Giồng Ông Đông, xã Đại Phước',
+        letter_no: '02/TM-BVĐ',
+        date: 'Giồng Ông Đông, ngày 02 tháng 11 năm 2026',
+        time: 'Vào lúc 7 giờ 00 ngày 15/11/2026 (Chủ nhật).',
+        location: 'Nhà Bia Liệt sĩ ấp Giồng Ông Đông, xã Đại Phước.',
+        content: 'Dự “Ngày hội đại đoàn kết toàn dân tộc ở khu dân cư năm 2026”.',
+        qr_code: 'TM-02-TRAN-VAN-HUNG'
+      },
+      {
+        name: 'Lê Thị Mai',
+        address: 'ấp Giồng Ông Đông, xã Đại Phước',
+        letter_no: '03/TM-BVĐ',
+        date: 'Giồng Ông Đông, ngày 02 tháng 11 năm 2026',
+        time: 'Vào lúc 7 giờ 00 ngày 15/11/2026 (Chủ nhật).',
+        location: 'Nhà Bia Liệt sĩ ấp Giồng Ông Đông, xã Đại Phước.',
+        content: 'Dự “Ngày hội đại đoàn kết toàn dân tộc ở khu dân cư năm 2026”.',
+        qr_code: 'TM-03-LE-THI-MAI'
+      },
+      {
+        name: 'Phạm Hồng Thái',
+        address: 'ấp Giồng Ông Đông, xã Đại Phước',
+        letter_no: '04/TM-BVĐ',
+        date: 'Giồng Ông Đông, ngày 02 tháng 11 năm 2026',
+        time: 'Vào lúc 7 giờ 00 ngày 15/11/2026 (Chủ nhật).',
+        location: 'Nhà Bia Liệt sĩ ấp Giồng Ông Đông, xã Đại Phước.',
+        content: 'Dự “Ngày hội đại đoàn kết toàn dân tộc ở khu dân cư năm 2026”.',
+        qr_code: 'TM-04-PHAM-HONG-THAI'
+      }
     ],
     generateBackground: () => {
       const canvas = document.createElement('canvas');
-      canvas.width = 1920;
-      canvas.height = 1280;
+      canvas.width = 2000;
+      canvas.height = 1440;
       const ctx = canvas.getContext('2d')!;
 
-      // Nền giấy kem trang trọng
+      // Nền giấy kem trang trọng chuẩn mẫu
       ctx.fillStyle = '#fffdf9';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Khung viền kép bao quanh toàn bộ 2 trang
       ctx.strokeStyle = '#b91c1c';
-      ctx.lineWidth = 8;
+      ctx.lineWidth = 6;
       ctx.strokeRect(30, 30, canvas.width - 60, canvas.height - 60);
 
       ctx.strokeStyle = '#d97706';
-      ctx.lineWidth = 3;
-      ctx.strokeRect(44, 44, canvas.width - 88, canvas.height - 88);
+      ctx.lineWidth = 2.5;
+      ctx.strokeRect(42, 42, canvas.width - 84, canvas.height - 84);
 
       // Đường gập đôi ở giữa (Center Fold)
       const centerX = canvas.width / 2;
       ctx.setLineDash([12, 12]);
       ctx.strokeStyle = '#cbd5e1';
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 2.5;
       ctx.beginPath();
-      ctx.moveTo(centerX, 44);
-      ctx.lineTo(centerX, canvas.height - 44);
+      ctx.moveTo(centerX, 42);
+      ctx.lineTo(centerX, canvas.height - 42);
       ctx.stroke();
       ctx.setLineDash([]);
 
       // Nhãn chỉ dẫn đường gập
       ctx.fillStyle = '#94a3b8';
-      ctx.font = '16px Arial, sans-serif';
+      ctx.font = '16px "Times New Roman", Times, serif';
       ctx.textAlign = 'center';
       ctx.fillText('- - - ĐƯỜNG GẤP GIẤY (A4 GẤP ĐÔI THÀNH 2 TRANG A5) - - -', centerX, canvas.height - 18);
 
@@ -749,128 +815,145 @@ export const PRESET_TEMPLATES: PresetTemplate[] = [
       // ==========================================
       const leftCenterX = centerX / 2;
 
-      // Tiêu đề chương trình
+      // Tiêu đề chương trình chuẩn kích thước
       ctx.fillStyle = '#b91c1c';
-      ctx.font = 'bold 36px "Times New Roman", Times, serif';
+      ctx.font = 'bold 34px "Times New Roman", Times, serif';
       ctx.textAlign = 'center';
-      ctx.fillText('CHƯƠNG TRÌNH', leftCenterX, 110);
+      ctx.fillText('CHƯƠNG TRÌNH', leftCenterX, 100);
 
-      ctx.fillStyle = '#1e3a8a';
-      ctx.font = 'bold 24px "Times New Roman", Times, serif';
-      ctx.fillText('NGÀY HỘI ĐẠI ĐOÀN KẾT TOÀN DÂN TỘC', leftCenterX, 150);
-      ctx.font = 'bold 22px "Times New Roman", Times, serif';
-      ctx.fillText('Ở KHU DÂN CƯ NĂM 2026', leftCenterX, 185);
+      ctx.fillStyle = '#0f172a';
+      ctx.font = 'bold 23px "Times New Roman", Times, serif';
+      ctx.fillText('NGÀY HỘI ĐẠI ĐOÀN KẾT TOÀN DÂN TỘC', leftCenterX, 138);
+      ctx.font = 'bold 21px "Times New Roman", Times, serif';
+      ctx.fillText('Ở KHU DÂN CƯ NĂM 2026', leftCenterX, 170);
 
       // Đường kẻ phân cách
-      ctx.strokeStyle = '#d97706';
+      ctx.strokeStyle = '#b91c1c';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(leftCenterX - 180, 205);
-      ctx.lineTo(leftCenterX + 180, 205);
+      ctx.moveTo(leftCenterX - 180, 190);
+      ctx.lineTo(leftCenterX + 180, 190);
       ctx.stroke();
 
-      // Danh sách 11 nội dung chương trình
+      // Danh sách 11 nội dung chương trình đúng từng chữ như mẫu gốc
       const agenda = [
-        '1. Văn nghệ chào mừng.',
-        '2. Chào cờ.',
-        '3. Tuyên bố lý do, giới thiệu đại biểu kết hợp Ôn truyền thống 96 năm ngày Thành lập Mặt trận Dân tộc thống nhất Việt Nam (18/11/1930 - 18/11/2026).',
-        '4. Báo cáo của Ban công tác Mặt trận khu dân cư.',
-        '5. Các đại biểu trao đổi, thảo luận.',
-        '6. Chủ trì phát biểu tiếp thu và giải trình (nếu có).',
-        '7. Biểu dương, tôn vinh, khen thưởng tập thể, gia đình & cá nhân tiêu biểu.',
-        '8. Tặng quà hộ gia đình nghèo, cận nghèo, gia đình chính sách.',
-        '9. Đại biểu cấp trên phát biểu ý kiến (nếu có).',
-        '10. Phát động phong trào thi đua; xây dựng khu dân cư đoàn kết, an toàn, ấm no, hạnh phúc.',
-        '11. Phát biểu cảm ơn và kết thúc buổi Lễ.'
+        ['1. Văn nghệ chào mừng.'],
+        ['2. Chào cờ.'],
+        [
+          '3. Tuyên bố lý do, giới thiệu đại biểu kết hợp Ôn truyền thống 96 năm',
+          '   ngày Thành lập Mặt trận Dân tộc thống nhất Việt Nam, ngày Truyền',
+          '   thống Mặt trận Tổ quốc Việt Nam (18/11/1930 – 18/11/2026).'
+        ],
+        [
+          '4. Báo cáo của Ban công tác Mặt trận khu dân cư (hoặc liên Ban',
+          '   công tác Mặt trận khu dân cư).'
+        ],
+        ['5. Các đại biểu trao đổi, thảo luận.'],
+        ['6. Chủ trì phát biểu tiếp thu và giải trình (nếu có).'],
+        [
+          '7. Biểu dương, tôn vinh, khen thưởng những tập thể, gia đình',
+          '   và cá nhân tiêu biểu.'
+        ],
+        ['8. Tặng quà hộ gia đình nghèo, cận nghèo, gia đình chính sách (nếu có).'],
+        ['9. Mời lãnh đạo cấp trên phát biểu, tặng quà (nếu có).'],
+        [
+          '10. Phát động hưởng ứng phong trào thi đua; xây dựng khu dân',
+          '    cư đoàn kết, an toàn, ấm no, hạnh phúc.'
+        ],
+        ['11. Phát biểu cảm ơn và kết thúc buổi Lễ.']
       ];
 
       ctx.textAlign = 'left';
-      ctx.fillStyle = '#1e293b';
-      ctx.font = '20px "Times New Roman", Times, serif';
+      ctx.fillStyle = '#0f172a';
+      ctx.font = '21px "Times New Roman", Times, serif';
 
-      let startY = 245;
-      agenda.forEach((item) => {
-        // Xuống dòng nếu quá dài
-        if (item.length > 55) {
-          const splitIdx = item.lastIndexOf(' ', 50);
-          const line1 = item.slice(0, splitIdx);
-          const line2 = '   ' + item.slice(splitIdx + 1);
-          ctx.fillText(line1, 75, startY);
-          startY += 26;
-          ctx.fillText(line2, 75, startY);
-          startY += 30;
-        } else {
-          ctx.fillText(item, 75, startY);
-          startY += 34;
-        }
+      let currentY = 240;
+      agenda.forEach((itemLines) => {
+        itemLines.forEach((line) => {
+          ctx.fillText(line, 80, currentY);
+          currentY += 34;
+        });
+        currentY += 10;
       });
 
       // Ban Tổ Chức ký tên
       ctx.fillStyle = '#b91c1c';
       ctx.font = 'bold 24px "Times New Roman", Times, serif';
       ctx.textAlign = 'center';
-      ctx.fillText('BAN TỔ CHỨC', leftCenterX + 180, canvas.height - 180);
+      ctx.fillText('BAN TỔ CHỨC', leftCenterX + 160, 1180);
 
       // ==========================================
       // TRANG PHẢI: THƯ MỜI CHÍNH THỨC
       // ==========================================
       const rightCenterX = centerX + centerX / 2;
 
-      // Tiêu ngữ bên trái
+      // Tiêu ngữ bên trái (UBMTTQ)
       ctx.fillStyle = '#0f172a';
-      ctx.font = 'bold 20px "Times New Roman", Times, serif';
+      ctx.font = 'bold 21px "Times New Roman", Times, serif';
       ctx.textAlign = 'center';
-      ctx.fillText('ỦY BAN MTTQ VIỆT NAM XÃ ĐẠI PHƯỚC', centerX + 230, 95);
-      ctx.fillText('BAN VẬN ĐỘNG ẤP GIỒNG ÔNG ĐÔNG', centerX + 230, 125);
-      ctx.font = '18px "Times New Roman", Times, serif';
-      ctx.fillText('Số: ......./TM-BVĐ', centerX + 230, 160);
+      ctx.fillText('ỦY BAN MTTQ VIỆT NAM', centerX + 230, 90);
+      ctx.fillText('XÃ ĐẠI PHƯỚC', centerX + 230, 120);
+      ctx.font = 'bold 20px "Times New Roman", Times, serif';
+      ctx.fillText('BVĐ ẤP GIỒNG ÔNG ĐÔNG', centerX + 230, 150);
 
       // Tiêu ngữ Quốc gia bên phải
-      ctx.font = 'bold 20px "Times New Roman", Times, serif';
-      ctx.fillText('CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM', centerX + 690, 95);
-      ctx.font = 'bold 20px "Times New Roman", Times, serif';
-      ctx.fillText('Độc lập - Tự do - Hạnh phúc', centerX + 690, 125);
+      ctx.font = 'bold 21px "Times New Roman", Times, serif';
+      ctx.fillText('CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM', centerX + 730, 90);
+      ctx.font = 'bold 21px "Times New Roman", Times, serif';
+      ctx.fillText('Độc lập – Tự do – Hạnh phúc', centerX + 730, 120);
 
       // Gạch chân Độc lập - Tự do - Hạnh phúc
       ctx.strokeStyle = '#0f172a';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(centerX + 580, 135);
-      ctx.lineTo(centerX + 800, 135);
+      ctx.moveTo(centerX + 620, 132);
+      ctx.lineTo(centerX + 840, 132);
       ctx.stroke();
 
-      ctx.font = 'italic 18px "Times New Roman", Times, serif';
-      ctx.fillText('Giồng Ông Đông, ngày 02 tháng 11 năm 2026', centerX + 690, 165);
-
-      // Tiêu đề THƯ MỜI lớn
+      // Tiêu đề THƯ MỜI lớn màu đỏ trang trọng
       ctx.fillStyle = '#b91c1c';
-      ctx.font = 'bold 50px "Times New Roman", Times, serif';
+      ctx.font = 'bold 52px "Times New Roman", Times, serif';
       ctx.fillText('THƯ MỜI', rightCenterX, 235);
 
-      // Đoạn trích yếu mở đầu
-      ctx.fillStyle = '#334155';
-      ctx.font = '18px "Times New Roman", Times, serif';
+      // Đoạn trích yếu mở đầu đúng từng câu chữ như mẫu
+      ctx.fillStyle = '#1e293b';
+      ctx.font = '21px "Times New Roman", Times, serif';
       ctx.textAlign = 'left';
 
-      const intro1 = 'Thực hiện Kế hoạch số 54/KH-MTTQ-BTT của Ban Thường trực UB MTTQ Việt Nam xã Đại Phước';
-      const intro2 = 'về tổ chức Ngày hội Đại đoàn kết toàn dân tộc ở khu dân cư năm 2026;';
-      const intro3 = 'Được sự thống nhất của Thường trực Đảng ủy và Ban Thường trực UB MTTQ Việt Nam;';
-      const intro4 = 'Ban vận động ấp Giồng Ông Đông trân trọng kính mời:';
+      const introLines = [
+        'Thực hiện Kế hoạch số 54/KH-MTTQ-BTT, ngày 05/10/2026 của Ban Thường trực Ủy ban',
+        'MTTQ Việt Nam xã Đại Phước về tổ chức các hoạt động thiết thực chào mừng kỷ niệm',
+        '96 năm ngày truyền thống Mặt trận Tổ quốc Việt Nam (18/11/1930 – 18/11/2026) và tổ',
+        'chức “Ngày hội đại đoàn kết toàn dân tộc” ở khu dân cư năm 2026;',
+        'Được sự thống nhất của Thường trực Đảng ủy xã Đại Phước; Ban Thường trực Ủy ban',
+        'MTTQ Việt Nam xã Đại Phước và Chi ủy Chi bộ ấp Giồng Ông Đông;'
+      ];
 
-      ctx.fillText(intro1, centerX + 65, 290);
-      ctx.fillText(intro2, centerX + 65, 318);
-      ctx.fillText(intro3, centerX + 65, 346);
-      ctx.font = 'bold 19px "Times New Roman", Times, serif';
+      let introY = 295;
+      introLines.forEach((line) => {
+        ctx.fillText(line, centerX + 75, introY);
+        introY += 32;
+      });
+
+      ctx.font = 'bold 22px "Times New Roman", Times, serif';
       ctx.fillStyle = '#0f172a';
-      ctx.fillText(intro4, centerX + 65, 385);
+      ctx.fillText('Ban vận động ấp Giồng Ông Đông trân trọng kính mời:', centerX + 75, introY + 12);
 
-      // Các dòng chấm kẻ dẫn trường
+      // Các dòng chấm kẻ dẫn trường căn chuẩn tuyệt đối với các trường điền
       ctx.setLineDash([4, 6]);
       ctx.strokeStyle = '#94a3b8';
       ctx.lineWidth = 1.5;
 
-      const dotYList = [465, 525, 585, 645];
-      dotYList.forEach(y => {
+      // Tọa độ Y của các đường chấm kẻ (Khớp 100% với baseline của trường điền)
+      const dotLines = [
+        { y: 588 }, // Baseline dòng Họ tên (Stage y = 294)
+        { y: 658 }, // Baseline dòng Địa chỉ (Stage y = 329)
+        { y: 728 }, // Baseline dòng Thời gian (Stage y = 364)
+        { y: 798 }, // Baseline dòng Địa điểm (Stage y = 399)
+        { y: 868 }  // Baseline dòng Nội dung (Stage y = 434)
+      ];
+
+      dotLines.forEach(({ y }) => {
         ctx.beginPath();
         ctx.moveTo(centerX + 230, y);
         ctx.lineTo(canvas.width - 65, y);
@@ -878,50 +961,50 @@ export const PRESET_TEMPLATES: PresetTemplate[] = [
       });
       ctx.setLineDash([]);
 
-      // Dòng nội dung
-      ctx.font = '19px "Times New Roman", Times, serif';
+      // Dòng lịch sự kêu gọi cuối thư
+      ctx.font = 'italic 21px "Times New Roman", Times, serif';
       ctx.fillStyle = '#1e293b';
-      ctx.fillText('Nội dung: Dự "Ngày hội đại đoàn kết toàn dân tộc ở khu dân cư năm 2026"', centerX + 65, 690);
-      ctx.font = 'italic 18px "Times New Roman", Times, serif';
-      ctx.fillText('Rất mong quý đại biểu sắp xếp thời gian đến dự để Ngày hội thêm phần long trọng và ý nghĩa!', centerX + 65, 730);
+      ctx.fillText('Nhận được thư mời, rất mong quý vị đại biểu sắp xếp thời gian, công việc đến dự', centerX + 75, 930);
+      ctx.fillText('để Ngày hội thêm phần long trọng và ý nghĩa!', centerX + 75, 962);
 
       // Chữ ký và con dấu ở cuối trang phải
       ctx.textAlign = 'center';
       ctx.fillStyle = '#0f172a';
-      ctx.font = 'bold 20px "Times New Roman", Times, serif';
+      ctx.font = 'bold 22px "Times New Roman", Times, serif';
 
       // Bí thư Chi bộ bên trái
-      ctx.fillText('BÍ THƯ CHI BỘ', centerX + 230, 810);
-      ctx.font = 'italic 17px "Times New Roman", Times, serif';
+      ctx.fillText('BÍ THƯ CHI BỘ', centerX + 230, 1030);
+      ctx.font = 'italic 18px "Times New Roman", Times, serif';
       ctx.fillStyle = '#64748b';
-      ctx.fillText('(Đã ký)', centerX + 230, 860);
-      ctx.font = 'bold 20px "Times New Roman", Times, serif';
+      ctx.fillText('(Đã ký)', centerX + 230, 1075);
+      ctx.font = 'bold 23px "Times New Roman", Times, serif';
       ctx.fillStyle = '#0f172a';
-      ctx.fillText('Nguyễn Văn Minh', centerX + 230, 930);
+      ctx.fillText('Nguyễn Văn Minh', centerX + 230, 1250);
 
       // Trưởng ban bên phải
-      ctx.fillText('TM. BAN VẬN ĐỘNG', centerX + 690, 800);
-      ctx.fillText('TRƯỞNG BAN', centerX + 690, 825);
-      ctx.font = 'italic 17px "Times New Roman", Times, serif';
+      ctx.fillText('TM. BAN VẬN ĐỘNG', centerX + 730, 1015);
+      ctx.fillText('TRƯỞNG BAN', centerX + 730, 1045);
+      ctx.font = 'italic 18px "Times New Roman", Times, serif';
       ctx.fillStyle = '#64748b';
-      ctx.fillText('(Đã ký)', centerX + 690, 865);
-      ctx.font = 'bold 20px "Times New Roman", Times, serif';
+      ctx.fillText('(Đã ký)', centerX + 730, 1090);
+      ctx.font = 'bold 23px "Times New Roman", Times, serif';
       ctx.fillStyle = '#0f172a';
-      ctx.fillText('Nguyễn Tấn Tài', centerX + 690, 930);
+      ctx.fillText('Nguyễn Tấn Tài', centerX + 730, 1250);
 
-      // Dấu mộc đỏ mô phỏng
+      // Dấu mộc đỏ mô phỏng chuẩn
       ctx.strokeStyle = '#dc2626';
       ctx.lineWidth = 4;
       ctx.beginPath();
-      ctx.arc(centerX + 620, 875, 45, 0, Math.PI * 2);
+      ctx.arc(centerX + 660, 1140, 52, 0, Math.PI * 2);
       ctx.stroke();
       ctx.fillStyle = '#dc2626';
       ctx.font = 'bold 12px Arial, sans-serif';
-      ctx.fillText('BAN VẬN ĐỘNG', centerX + 620, 865);
-      ctx.fillText('ẤP GIỒNG ÔNG ĐÔNG', centerX + 620, 885);
+      ctx.fillText('BAN VẬN ĐỘNG', centerX + 660, 1132);
+      ctx.fillText('ẤP GIỒNG ÔNG ĐÔNG', centerX + 660, 1152);
 
       return canvas.toDataURL('image/png');
     }
   }
 ];
+
 
