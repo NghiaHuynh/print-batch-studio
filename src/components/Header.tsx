@@ -72,7 +72,7 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="bg-white border-b border-slate-200 px-4 py-2.5 flex items-center justify-between shrink-0 z-30 shadow-xs relative">
+    <header className="bg-white border-b border-slate-200 px-4 py-2.5 flex items-center justify-between shrink-0 z-50 shadow-xs relative">
       {/* Khối bên trái: Logo + App Name + Undo/Redo */}
       <div className="flex items-center gap-3">
         <div className="bg-gradient-to-tr from-blue-700 to-indigo-600 text-white p-2 rounded-xl shadow-sm flex items-center justify-center">

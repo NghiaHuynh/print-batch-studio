@@ -1392,8 +1392,8 @@ Ban vận động ấp Giồng Ông Đông trân trọng kính mời:`,
       ctx.strokeStyle = '#0f172a';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(170, 160);
-      ctx.lineTo(410, 160);
+      ctx.moveTo(260, 160);
+      ctx.lineTo(480, 160);
       ctx.stroke();
 
       // Đường kẻ nét liền dưới Tiêu ngữ (bằng 100% độ dài dòng chữ)
@@ -1743,8 +1743,8 @@ Ban vận động ấp Giồng Ông Đông trân trọng kính mời:`,
       ctx.strokeStyle = '#0f172a';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(170, 160);
-      ctx.lineTo(430, 160);
+      ctx.moveTo(270, 160);
+      ctx.lineTo(510, 160);
       ctx.stroke();
 
       // Đường kẻ nét liền dưới Tiêu ngữ
@@ -1814,7 +1814,7 @@ Ban vận động ấp Giồng Ông Đông trân trọng kính mời:`,
         type: 'text',
         visible: true,
         x: 45,
-        y: 94,
+        y: 98,
         width: 300,
         fontSize: 12,
         fontFamily: "'Times New Roman', Times, serif",
@@ -2078,12 +2078,12 @@ Ban vận động ấp Giồng Ông Đông trân trọng kính mời:`,
       ctx.strokeStyle = '#0f172a';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(170, 180);
-      ctx.lineTo(430, 180);
+      ctx.moveTo(270, 180);
+      ctx.lineTo(510, 180);
       ctx.stroke();
 
-      // Đường gạch dưới trích yếu
-      ctx.strokeStyle = '#b91c1c';
+      // Đường gạch dưới trích yếu (chuẩn văn thư đen)
+      ctx.strokeStyle = '#0f172a';
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(canvas.width / 2 - 100, 385);

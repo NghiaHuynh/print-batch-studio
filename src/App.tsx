@@ -745,7 +745,7 @@ export const App: React.FC = () => {
       />
 
       {/* 2. Không gian làm việc 3 cột: Trường dữ liệu -> Canvas trực quan -> Bảng thuộc tính */}
-      <div id="app-ui" className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
+      <div id="app-ui" className="flex-1 flex flex-col lg:flex-row overflow-hidden relative z-10">
         <FieldsSidebar
           fields={fields}
           selectedFieldId={selectedFieldId}

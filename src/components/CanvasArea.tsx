@@ -352,7 +352,7 @@ export const CanvasArea: React.FC<CanvasAreaProps> = ({
       />
 
       {/* THANH CÔNG CỤ ĐIỀU KHIỂN PHÔI THÔNG MINH (Top Floating Bar) */}
-      <div className="absolute top-3.5 z-30 flex flex-wrap items-center justify-center gap-2 max-w-[95%]">
+      <div className="absolute top-3.5 z-20 flex flex-wrap items-center justify-center gap-2 max-w-[95%] pointer-events-auto">
         {/* Nút chỉ dẫn & Nạp phôi */}
         <div className="flex items-center gap-2 bg-slate-900/85 backdrop-blur-md text-white px-3 py-1.5 rounded-xl border border-slate-700/80 text-xs shadow-lg">
           <UploadCloud className="w-3.5 h-3.5 text-blue-400 shrink-0" />
@@ -368,8 +368,8 @@ export const CanvasArea: React.FC<CanvasAreaProps> = ({
           </button>
         </div>
 
-        {/* Nút Nhận diện văn bản thông minh (Auto Detect & Convert to Editable Text) */}
-        {templateDataUrl && onAutoDetectText && (
+        {/* Nút Nhận diện văn bản thông minh (chỉ hiển thị khi phôi là ảnh hoặc PDF tải lên, không phải preset vector) */}
+        {templateDataUrl && templateInfo.type !== 'preset' && onAutoDetectText && (
           <button
             type="button"
             onClick={onAutoDetectText}
@@ -382,8 +382,8 @@ export const CanvasArea: React.FC<CanvasAreaProps> = ({
           </button>
         )}
 
-        {/* Nút Xóa ảnh nền gốc / Chuyển sang phôi giấy trắng sạch */}
-        {templateDataUrl && onRemoveBackgroundImage && (
+        {/* Nút Xóa ảnh nền gốc (chỉ hiển thị khi phôi là ảnh hoặc PDF tải lên) */}
+        {templateDataUrl && templateInfo.type !== 'preset' && onRemoveBackgroundImage && (
           <button
             type="button"
             onClick={onRemoveBackgroundImage}
@@ -395,8 +395,8 @@ export const CanvasArea: React.FC<CanvasAreaProps> = ({
           </button>
         )}
 
-        {/* Nút Áp dụng Mẫu Số Hóa Chuẩn 100% MTTQ */}
-        {onApplyCleanPreset && (
+        {/* Nút Áp dụng Mẫu Số Hóa Chuẩn 100% MTTQ (chỉ hiển thị khi đang sửa ảnh quét mẫu MTTQ) */}
+        {onApplyCleanPreset && templateInfo.type !== 'preset' && (
           <button
             type="button"
             onClick={onApplyCleanPreset}
